@@ -106,10 +106,11 @@ def main():
         records.append({'file': target.name, 'url': url, 'bytes': target.stat().st_size,
                         'upstreamMd5': md5, 'sha256': digest(target)})
     entries = []
-    for directory in ('src', 'worker', 'assets', 'tools', 'tests', 'release'):
+    for directory in ('src', 'worker', 'assets', 'tools', 'tests', 'release', 'docs', '.github'):
         entries.extend((file, file.relative_to(PROJECT)) for file in source_files(PROJECT / directory))
     for name in ('package.json', 'package-lock.json', 'development.example.json', 'README.md',
-                 'CONTRIBUTORS.md', 'LICENSE', '.gitignore', 'Start-Viewer.cmd'):
+                 'CONTRIBUTORS.md', 'CONTRIBUTING.md', 'THIRD-PARTY-NOTICES.txt',
+                 'LICENSE', '.gitignore', 'Start-Viewer.cmd'):
         entries.append((PROJECT / name, Path(name)))
     viewer_source = output / f'SWTOR-Model-Viewer-{version}-source.zip'
     zip_files(viewer_source, entries)
