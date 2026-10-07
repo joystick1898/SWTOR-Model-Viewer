@@ -1,0 +1,17 @@
+import fs from 'node:fs/promises';
+import {convert,convertNpc,defaultState} from '../src/backend.mjs';
+const c=JSON.parse(await fs.readFile('output/equipment/catalog.json','utf8'));
+const pistol=c.items.find(r=>r.models.includes('art/dynamic/weapon/blaster/blaster_high02_a03.gr2'));
+const pack=c.items.find(r=>r.models.includes('art/static/vehicle/player_mount/mtx_veh_pl_mt_jetpack_01.gr2'));
+if(!pistol||!pack)throw Error('Missing fixture');
+const layer=(r,bone)=>({item:r.id,bone,position:[0,0,0],rotation:[0,0,0],scale:1});
+const equipment=[layer(pistol,'RightWeapon'),layer(pistol,'socket_saber_left'),layer(pack,'Spine2')];
+let base=await convert({...defaultState});console.log('Bones',base.bones.filter(b=>/spine|back|holster|saber/i.test(b)));
+equipment[2].bone='vfx_jetpack_back';
+const state={...defaultState,equipment};
+const preview=await convert(state);console.log('LAYER_PREVIEW',preview.parts.filter(p=>p.equipmentItem));
+const exported=await convert({...state,time:preview.duration*.4},'fbx');
+const {writeExportBundle}=await import('../src/export-bundle.mjs');
+const destination=process.cwd()+'/output/equipment-layered.fbx';await writeExportBundle(exported,state,destination);
+await fs.writeFile('reports/equipment-pipeline-smoke.json',JSON.stringify({ok:true,state,results:[{id:'equipment-layered',ok:true,exported,destination}]},null,2));
+console.log('EQUIPMENT_PASS',exported.boneCount);

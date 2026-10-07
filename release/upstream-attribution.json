@@ -1,0 +1,63 @@
+[
+  {
+    "repository": "https://github.com/SWTOR-Slicers/ZG-SWTOR-Tools",
+    "queriedAtUtc": "2026-10-07T00:12:21.6219969Z",
+    "head": "6b6fe100d0f683104658a4751e82715022c84e8a",
+    "license": null,
+    "contributors": [
+      {
+        "login": "ZeroGravitasIndeed",
+        "html_url": "https://github.com/ZeroGravitasIndeed",
+        "contributions": 190
+      }
+    ]
+  },
+  {
+    "repository": "https://github.com/SWTOR-Slicers/Granny2-Plug-In-Blender-2.8x",
+    "queriedAtUtc": "2026-10-07T00:12:22.2103707Z",
+    "head": "fc07fe624f0e9899bc7d86d5664e50c29f3abfbd",
+    "license": "GPL-3.0",
+    "contributors": [
+      {
+        "login": "ZeroGravitasIndeed",
+        "html_url": "https://github.com/ZeroGravitasIndeed",
+        "contributions": 150
+      },
+      {
+        "login": "LeeThorogood",
+        "html_url": "https://github.com/LeeThorogood",
+        "contributions": 23
+      },
+      {
+        "login": "Tormak9970",
+        "html_url": "https://github.com/Tormak9970",
+        "contributions": 14
+      },
+      {
+        "login": "kremianskii",
+        "html_url": "https://github.com/kremianskii",
+        "contributions": 12
+      },
+      {
+        "login": "StarLight-Oliver",
+        "html_url": "https://github.com/StarLight-Oliver",
+        "contributions": 12
+      },
+      {
+        "login": "UnconventionalError",
+        "html_url": "https://github.com/UnconventionalError",
+        "contributions": 3
+      },
+      {
+        "login": "SultanaVerena",
+        "html_url": "https://github.com/SultanaVerena",
+        "contributions": 3
+      },
+      {
+        "login": "Jedipedia",
+        "html_url": "https://github.com/Jedipedia",
+        "contributions": 3
+      }
+    ]
+  }
+]

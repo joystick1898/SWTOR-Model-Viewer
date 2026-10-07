@@ -1,0 +1,8 @@
+{
+  "resources": "D:/SWTOR/resources",
+  "game": "D:/Games/Star Wars - The Old Republic",
+  "blender": "C:/Program Files/Blender Foundation/Blender 4.3/blender.exe",
+  "addons": "C:/path/to/addons",
+  "python": "C:/path/to/Python314/python.exe",
+  "fixture": ""
+}

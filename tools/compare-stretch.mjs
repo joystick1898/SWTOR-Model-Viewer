@@ -1,0 +1,3 @@
+import fs from 'node:fs/promises';import {decodeAssetMotion} from '../src/animation-library.mjs';
+const root='G:/Old Republic Assets/resources',clip='cb_2saber_attack_right_1.jba';const a=await decodeAssetMotion(root,'anim/humanoid/bfanew',clip),b=await decodeAssetMotion(root,'anim/humanoid/bmnnew',clip);
+console.log('Motion identical',JSON.stringify(a.motion)===JSON.stringify(b.motion),'names identical',JSON.stringify(a.names)===JSON.stringify(b.names));console.log('bind differences',a.sourceBind.map((v,i)=>({name:v.name,a:v.translation,b:b.sourceBind[i].translation})).filter(v=>Math.hypot(...v.a.map((x,j)=>x-v.b[j]))>.01));

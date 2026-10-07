@@ -1,0 +1,44 @@
+SWTOR Model Viewer {{VERSION}} - source code
+
+The viewer's original code is free software under GPL-3.0-or-later.
+See VIEWER-LICENSE.txt. Third-party components retain their own licenses.
+
+Viewer source: source/SWTOR-Model-Viewer-{{VERSION}}-source.zip in the runnable
+package, or the same archive at the root of the companion Sources ZIP.
+This snapshot includes the actual working-tree changes used for this build.
+Build with npm ci, configure development.local.json from the example, and use
+npm start. For a Windows release, run npm run bundle:windows. Build-time tools
+need the Blender, Python and GR2 paths configured; users of the portable build
+do not need separate runtime installations.
+
+The companion SWTOR-Model-Viewer-{{VERSION}}-Sources.zip contains:
+- the viewer source snapshot;
+- the exact shipped io_scene_gr2 4.0.7 Python source and license;
+- Blender 4.3.2 source (commit 32f5fdce0a0a);
+- Blender's official 4.3 library-source collection;
+- sources-manifest.json with upstream URLs and verified checksums.
+
+Blender source:
+https://download.blender.org/source/blender-4.3.2.tar.xz
+Blender library sources:
+https://download.blender.org/source/blender-with-libraries-4.3.0.tar.xz
+
+Use the 4.3.2 Blender tree with the library sources from the 4.3.0 collection.
+The build_files/build_environment/cmake/versions.cmake dependency definitions
+are identical in the v4.3.0 and v4.3.2 source tags. The collection also contains
+an older Blender tree; use the separate 4.3.2 tree for this runtime.
+Blender build scripts and platform instructions are included in its source.
+Windows build documentation:
+https://developer.blender.org/docs/handbook/building_blender/windows/
+Dependency build documentation:
+https://developer.blender.org/docs/handbook/building_blender/dependencies/
+
+Additional upstream source:
+Electron: https://github.com/electron/electron/tree/v44.5.1
+Three.js: https://github.com/mrdoob/three.js/tree/r186
+Python: https://github.com/python/cpython/tree/v3.14.7
+See THIRD-PARTY-NOTICES.txt and the complete licenses shipped with each runtime.
+
+When sharing the release, keep this document and upstream notices in the app
+folder, and make the companion Sources ZIP available alongside the Windows ZIP.
+Game resources, caches and private development configuration are not included.

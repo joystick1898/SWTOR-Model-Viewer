@@ -1,0 +1,25 @@
+SWTOR Model Viewer {{VERSION}} - Windows x64
+
+This application was generated with AI using OpenAI Codex, under the direction
+of Joystick1898. AI-generated code can contain errors; report reproducible issues
+to the project's GitHub issue tracker.
+
+Launch SWTOR Model Viewer.exe. Keep the entire extracted application folder
+together. No separate Blender, Python, Node.js, or add-on installation is needed.
+
+On first launch, select your extracted SWTOR Resources folder and your installed
+Star Wars: The Old Republic game folder. These can be changed in Settings.
+The app does not include game models, textures, animations, or extracted data.
+
+Settings and caches live in %APPDATA%/SWTOR Model Viewer. To update, close the
+viewer and replace the application folder; retain your settings/data folder.
+
+The executable is unsigned. The package is portable; no installer is required.
+Posed FBX export is supported; full animation export and cloth physics are not.
+Unity Built-in materials were tested locally; other render pipelines and TTS
+compatibility have not been fully validated.
+
+Read THIRD-PARTY-NOTICES.txt and CONTRIBUTORS.md for upstream credits and licenses.
+The viewer is free software under GPL-3.0-or-later; see VIEWER-LICENSE.txt.
+Source code and build instructions are described in SOURCE-CODE.txt.
+This is an independent community project. Upstream credits do not imply endorsement.

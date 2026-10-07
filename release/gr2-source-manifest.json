@@ -1,0 +1,78 @@
+[
+  {
+    "file": "__init__.py",
+    "sha256": "99d89a549637a200c6b222f224141f26f1dd87ada1b74a6059c261d8e0c16205"
+  },
+  {
+    "file": "addon_prefs.py",
+    "sha256": "be97244272c8f8959df09345817fad8f6b1b3c5a938caa117e73fb3187d386c7"
+  },
+  {
+    "file": "ops\\add_swtor_shaders_menu.py",
+    "sha256": "6d79cb79e3841d75848c1044a5ffb59b6b501030f12b09693e696e08e496ae38"
+  },
+  {
+    "file": "ops\\export_gr2_32.py",
+    "sha256": "d3de4252866c2cc36e0b85ebface12f57984745bc603d078d442dbffb4160347"
+  },
+  {
+    "file": "ops\\export_gr2.py",
+    "sha256": "8629405ac568420c2efcf9713423c2c9cdf72baa6521428595feeddec496e4d3"
+  },
+  {
+    "file": "ops\\import_cha.py",
+    "sha256": "988fc0910cb1c426d6445f0aa26eeab0a242f9586057f7061b488dbb833dd929"
+  },
+  {
+    "file": "ops\\import_clo.py",
+    "sha256": "a2a09ebc143028e8818126286ea9dd4791a05ee5b8b5b7a8755ec8ab4aeb7097"
+  },
+  {
+    "file": "ops\\import_gr2.py",
+    "sha256": "2421731f134cca29084f87236b7875efd1095d8133d6a9026095c776e6fecc11"
+  },
+  {
+    "file": "ops\\import_jba.py",
+    "sha256": "3f0875be7b21a1fbfa7cf9799eddb3bc86703bdcc08eb20f2ab0f9030d081d4a"
+  },
+  {
+    "file": "types\\clo.py",
+    "sha256": "c27c1c0167a78f51b8a7702cae5bb1ed347228fcdd40a6089cb2dd528b45695b"
+  },
+  {
+    "file": "types\\gr2.py",
+    "sha256": "7789a34d6fac164b1315467b334a81cfe96f0cb39191e52d9f1f162c667f37c8"
+  },
+  {
+    "file": "types\\jba.py",
+    "sha256": "2c1e060d1cd0a03d407cfb24e2a0e352af7f06ece174b86db84d1f4fc7be12e9"
+  },
+  {
+    "file": "types\\node_group.py",
+    "sha256": "ffe9719fbb12983e21c548531ff8c77ded1fa427d1468b3266bf4a344d08900d"
+  },
+  {
+    "file": "types\\node_tree.py",
+    "sha256": "8d5b8d9f83441049bea4aeea3c3f9261b6e070f92367114f9ef74fa294cb349a"
+  },
+  {
+    "file": "types\\node.py",
+    "sha256": "45eebaee2fbdffcf9ac8f65bf880af00e70ffe3bb0bc76708c485f52157dc21f"
+  },
+  {
+    "file": "types\\shared.py",
+    "sha256": "b12a46023323a70e0b98ab563ba049a54730eb7ad96ae195705c8adab59307b2"
+  },
+  {
+    "file": "utils\\binary.py",
+    "sha256": "deb8b553dc99ea55e7b424b92d0cc8e0c53b753ed96c894bfd44b1e8156f1f99"
+  },
+  {
+    "file": "utils\\number.py",
+    "sha256": "979833365426935ccdce1d4e4d9ae689f6eb6eee58b2f9842407fab48ef75604"
+  },
+  {
+    "file": "utils\\string.py",
+    "sha256": "203d4414ffb80ce4d8eab9891d744cb1c44d66cddf39abad767a25d270d8cb10"
+  }
+]

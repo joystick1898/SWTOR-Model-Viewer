@@ -1,0 +1,4 @@
+import fs from 'node:fs/promises';import {createHash} from 'node:crypto';
+const root='G:/Old Republic Assets/resources/',pending=JSON.parse(await fs.readFile('reports/pending-native-maps.json','utf8')),dirs=[...new Set(JSON.parse(await fs.readFile('reports/browser-mapping-coverage.json','utf8')).results.map(r=>r.directory))],results=[];
+for(const p of pending)for(const c of p.clips){const b=await fs.readFile(root+p.directory+c.clip);let matches=[];for(const dir of dirs){if(dir===p.directory)continue;try{const x=await fs.readFile(root+dir+c.clip);if(x.equals(b))matches.push(dir);}catch{}}results.push({directory:p.directory,...c,matches});}
+await fs.writeFile('reports/shared-orphan-clips.json',JSON.stringify(results,null,2));console.log('matched',results.filter(r=>r.matches.length).length,'total',results.length,'unmatched',results.filter(r=>!r.matches.length));

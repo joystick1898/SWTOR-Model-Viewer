@@ -1,0 +1,23 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {convert,defaultState} from '../src/backend.mjs';
+import {validateBlade} from '../src/equipment.mjs';
+import {writeExportBundle} from '../src/export-bundle.mjs';
+const folder=path.resolve('output/saber-layout-review');
+const blade=validateBlade({...JSON.parse(await fs.readFile(path.join(folder,'ui-state.json'),'utf8')),effect:'standard'});
+await fs.writeFile(path.join(folder,'validated-blade.json'),JSON.stringify(blade,null,2));
+const catalog=JSON.parse(await fs.readFile('output/equipment/catalog.json','utf8'));
+// All six elements on an ordinary single hilt proves no compatibility gate remains.
+const item=catalog.items.find(r=>r.models.some(m=>m.endsWith('/saber_gs07_a01_v01.gr2')));
+const state={...defaultState,clip:'cb_warrior_saber_idle_1.jba',equipment:[{item:item.id,bone:'RightWeapon',blade}]};
+const preview=await convert(state,'preview',console.log);assert.equal(preview.parts.filter(p=>p.name.includes('_blade_')).length,12);
+const result=await convert(state,'fbx',console.log);assert.equal(result.parts.filter(p=>p.name.includes('_blade_')).length,12);
+const manifest=await writeExportBundle(result,state,path.join(folder,'Manual-saber.fbx'));
+assert.deepEqual(manifest.preset.equipment[0].blade,blade);
+for(const element of Object.values(blade.elements))assert(manifest.materials.some(m=>m.name.startsWith('Saber glow '+element.glow)));
+const disabled=structuredClone(state);disabled.equipment[0].blade.layout=Object.fromEntries(Object.keys(blade.layout).map(k=>[k,false]));
+const off=await convert(disabled,'preview',console.log);assert.equal(off.parts.filter(p=>p.name.includes('_blade_')).length,0);assert(off.parts.some(p=>p.equipmentItem===item.id));
+await fs.writeFile(path.join(folder,'Manual-saber.pose.json'),JSON.stringify(state,null,2));
+await fs.writeFile(path.join(folder,'pipeline-check.json'),JSON.stringify({ok:true,preview:preview.file,fbx:result.file,bladeMeshes:12,allOff:true},null,2));
+console.log('MANUAL_SABER_PIPELINE_PASS');

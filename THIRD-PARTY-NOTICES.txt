@@ -1,0 +1,69 @@
+SWTOR Model Viewer 0.2.1 - third-party notices
+Prepared October 7, 2026
+
+Viewer license: GPL-3.0-or-later. See VIEWER-LICENSE.txt and SOURCE-CODE.txt.
+The LICENSE beside the executable is Electron's MIT license; preserve both.
+
+AI disclosure
+The viewer was generated with AI using OpenAI Codex, under Joystick1898's
+direction. Third-party components retain their own authorship and licenses.
+
+SWTOR Slicers / Granny2 Import-Export Add-on for Blender 4.0.7
+Authors credited by the bundled add-on: Darth Atroxa, SWTOR Slicers.
+Repository: https://github.com/SWTOR-Slicers/Granny2-Plug-In-Blender-2.8x
+License: GNU General Public License version 3; preserve individual file headers.
+Bundled Python source and license: resources/runtime/addons/io_scene_gr2/.
+Additional license copy: licenses/GR2-GPL-3.0.txt.
+See CONTRIBUTORS.md for upstream contributor credits.
+
+ZeroGravitas' ZG SWTOR Tools / SWTOR Slicers
+Author: ZeroGravitas (GitHub: ZeroGravitasIndeed).
+Repository: https://github.com/SWTOR-Slicers/ZG-SWTOR-Tools
+Acknowledged for their SWTOR asset-handling tools, assemblers and community work.
+The current packaging script bundles io_scene_gr2, not zg_swtor_tools.
+This acknowledgment does not assert that ZG SWTOR Tools is bundled or assign it
+a license: GitHub did not identify a repository-wide license when checked.
+
+Electron 44.5.1
+Copyright Electron contributors. MIT license.
+Repository: https://github.com/electron/electron
+License: LICENSE beside the executable; additional copy licenses/Electron-MIT.txt.
+Chromium, Node.js, V8 and other bundled component notices:
+LICENSES.chromium.html beside the executable. Preserve that entire file.
+
+Three.js 0.186.1
+Copyright 2010-2026 three.js authors. MIT license.
+Repository: https://github.com/mrdoob/three.js
+License: resources/app/node_modules/three/LICENSE; licenses/Three-MIT.txt.
+
+Blender 4.3.2
+Copyright Blender Foundation and Blender contributors.
+Repository: https://projects.blender.org/blender/blender
+The distribution's copyright.txt describes GPL version 2 or later and notes
+that included code/libraries use licenses compatible with GPL version 3 or later.
+Individual source-file SPDX identifiers and shipped license texts govern.
+Notices: resources/runtime/blender/copyright.txt and the complete license/ tree,
+including license/license.md, spdx/ and others/. Do not remove nested notices.
+This tree covers Blender's bundled libraries, including its Python/NumPy stack.
+An additional copyright copy is in licenses/Blender-copyright.txt.
+
+Python 3.14.7 (standalone runtime)
+Copyright Python Software Foundation and other contributors.
+Repository: https://github.com/python/cpython
+License and historical notices: resources/runtime/python/LICENSE.txt;
+additional copy licenses/Python-LICENSE.txt. Preserve bundled notices for its
+standard-library dependencies as well.
+
+Build tools
+@electron/packager 20.3.0 and its npm dependencies are build-time tools, rather
+than shipped application dependencies. package-lock.json pins the source build.
+Retain their upstream license files when redistributing those tools themselves.
+
+Game content and trademarks
+Star Wars: The Old Republic and Star Wars names and game content belong to their
+respective rights holders. The viewer's software license does not grant rights
+to game content. Users supply their own installation and extracted resources.
+No game assets or generated character exports belong in the application release.
+
+Full license texts accompany the relevant components. Attribution is not a
+substitute for those texts or any corresponding-source obligations.

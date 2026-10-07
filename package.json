@@ -1,0 +1,31 @@
+{
+  "name": "swtor-model-viewer",
+  "version": "0.2.1",
+  "private": true,
+  "description": "Local SWTOR character and animation workbench",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.mjs",
+    "smoke": "node tools/app-smoke.mjs",
+    "package:windows": "node tools/package-windows.mjs",
+    "smoke:setup": "node tools/setup-smoke.mjs",
+    "bundle:windows": "node tools/bundle-windows.mjs"
+  },
+  "dependencies": {
+    "electron": "44.5.1",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joystick1898/SWTOR-Model-Viewer.git"
+  },
+  "homepage": "https://github.com/joystick1898/SWTOR-Model-Viewer#readme",
+  "bugs": {
+    "url": "https://github.com/joystick1898/SWTOR-Model-Viewer/issues"
+  }
+}

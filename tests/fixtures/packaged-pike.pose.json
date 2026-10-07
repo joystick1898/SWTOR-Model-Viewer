@@ -1,0 +1,66 @@
+{
+  "expression": null,
+  "version": 2,
+  "character": "native-designer",
+  "clip": "cb_warrior_saber_idle_1.jba",
+  "time": 0,
+  "hidden": [],
+  "rootMotion": false,
+  "weapon": "none",
+  "exportRig": true,
+  "equipment": [
+    {
+      "item": "8b75871c615ffc512de76cab",
+      "bone": "RightWeapon",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1,
+      "blade": {
+        "enabled": true,
+        "core": "#ffffff",
+        "glow": "#4080ff",
+        "length": 90,
+        "width": 2,
+        "spacing": 0
+      }
+    }
+  ],
+  "appearance": {
+    "body": "bmn",
+    "head": 6,
+    "hair": 5,
+    "hairHue": null,
+    "eyeHue": null,
+    "skinBrightness": null,
+    "gearHue": null,
+    "hairColor": null,
+    "eyeColor": null,
+    "gearColor": null
+  },
+  "designer": {
+    "species": "human",
+    "body": "bmn",
+    "sourceNpc": null,
+    "choices": {
+      "appSlotHead": "47792516b508b93c2a4c2323",
+      "appSlotAge": "ebfa1a3fe299eafd2c6ced31",
+      "appSlotComplexion": "79119b7c6970cc9e977079d1",
+      "appSlotEyeColor": "a7f0a320562dc34fbfa3cf4a",
+      "appSlotFaceHair": "a7aa5240316e38fda14426af",
+      "appSlotFacePaint": "cde7549f9307d174a48022e2",
+      "appSlotHair": "f6e0b973d13be59e594c4127",
+      "appSlotHairColor": "499c3d56aa77b1bbbac93ae0",
+      "appSlotSkinColor": "e44d8eadb9c93e340dfc2d34"
+    },
+    "colors": {},
+    "useNpcAppearance": true
+  }
+}
