@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.3 — 2026-10-08
+
+- Reorganized the workspace around appearance on the left, the viewer in the
+  center, and a persistent equipment panel extending to the bottom on the right.
+- Added adjacent color dropdowns for skin, eyes, hair and individual appearance
+  pieces while preserving species- and head-specific customization options.
+- Added equipment color dropdowns with whole-item and per-mesh primary/secondary
+  channels, explicit Apply/Revert actions, and a catalog alongside the viewer.
+- Added a red clear-slot button that immediately returns the draft slot to
+  Choose item, including all layers in that slot. Apply equipment commits removal.
+- Added a resizable animation dock and list divider with remembered dimensions,
+  a responsive scrollable animation grid, and retained Previous/Next pagination.
+- Fixed repeated hand-slot catalog requests, off-hand destination loss when
+  changing categories, duplicate-layer draft reconciliation, appearance edits
+  overwritten during option loading, and clear buttons staying disabled after Apply.
+- Reduced repeated slot classification and canceled obsolete catalog searches.
+
 ## 0.2.2 — 2026-10-08
 
 - Added a configurable preview and baked-material cache limit in Settings,

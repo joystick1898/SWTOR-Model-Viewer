@@ -1,0 +1,80 @@
+/* Split workspace: appearance / model / equipment, with animation below. */
+header{height:auto;min-height:64px;padding:10px 18px;gap:18px;flex-wrap:wrap;flex-shrink:0}
+header small{display:none}header h1{margin:0;font-size:17px}.actions button,nav button{padding:7px 9px!important}
+main{flex:1;min-height:180px}aside{padding:14px 16px}.library{padding-right:16px}.inspector{padding-left:16px}
+#designerPanel>small{display:none}#designerPanel>h2{font-size:15px!important;margin:0 0 12px}
+#nativeNew{padding:7px;margin:0 0 12px}.nativeActions{bottom:-14px;padding:10px 0;background:#1b1e24;z-index:4}
+#nativeDesigner>label{margin-top:9px}.library select{width:100%;margin-bottom:4px}
+#nativeDesigner{display:grid;grid-template-columns:65px minmax(0,1fr);align-items:center;gap:5px 8px}
+#nativeDesigner>#nativeNew,#nativeDesigner>p,#nativeDesigner>details,#nativeDesigner>.nativeActions{grid-column:1/-1}
+#nativeDesigner>label{margin:0;font-size:12px}#nativeDesigner>select{min-height:32px;padding:6px;margin:0}
+#nativeDesigner>#nativeSource{margin:8px 0}#nativeDesigner>details{align-self:stretch;margin-top:8px}
+.itemActions{display:flex;gap:5px;flex-wrap:wrap}.itemActions button{font-size:11px;padding:6px}
+#nativeDesigner input,#legacyDesigner input{max-width:100%}#nativeChoices{padding-top:0}
+.appearanceChoice{margin-bottom:10px}.appearanceChoice>label{margin:0 0 4px}
+.appearanceControl,.pieceColorRow{display:flex;align-items:center;gap:5px;position:relative;flex-wrap:wrap}
+.appearanceControl>select{flex:1;width:0;min-width:80px;margin:0}
+.choiceDescription{margin:4px 0 0;font-size:11px}.choiceDescription input{display:none}
+.customColorMenu{border:0;margin:0;padding:0;position:static;flex:none}
+.customColorMenu>summary{display:flex;align-items:center;padding:8px 7px;gap:3px;border:1px solid #3a3f49;border-radius:5px;color:#cbd0da;list-style:none}
+.customColorMenu>summary::-webkit-details-marker{display:none}.customColorMenu[open]>summary{border-color:var(--accent);color:var(--accent)}
+.colorPreview{width:12px;height:12px;border-radius:2px;border:1px solid #737c8d;display:inline-block}.colorPreview.original{background:linear-gradient(135deg,#828893 50%,#262d37 50%)}
+.colorMenuContent{position:absolute;top:100%;left:0;right:0;background:#22262e;border:1px solid #535b68;border-radius:7px;padding:12px;z-index:6;box-shadow:0 8px 20px #0006}
+.colorMenuContent strong{font-size:12px}.colorMenuContent label{margin:9px 0 4px}.colorMenuContent .colorControl{margin:0;gap:5px}.colorMenuContent .colorControl input[type=color]{width:31px!important;height:31px;min-height:31px;padding:2px}.colorMenuContent .colorControl input[type=text]{padding:6px;min-height:31px}.colorMenuContent .colorControl button{padding:6px}
+.colorMenuContent select{width:100%;min-height:32px;padding:6px;margin:0}
+.pieceColorRow{margin:8px 0}.pieceColorRow>span{flex:1;min-width:0;font-size:12px}
+#equipmentDialog.equipmentPanel{width:100%;max-height:none;padding:0;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
+.equipmentHeader{gap:8px;margin-bottom:6px}.equipmentHeader h2{font-size:15px!important;margin:0}.equipmentHeader #equipmentOpen{width:auto;padding:7px 9px;font-size:12px}
+#equipmentSummary{margin:6px 0 10px}#gear{font-size:11px;margin:0 0 12px}
+.equipmentSlotRow{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:5px;margin:6px 0;position:relative}
+.equipmentSlotRow.filled{grid-template-columns:54px minmax(0,1fr) auto auto}
+.equipmentSlotRow .clearSlot{position:relative;padding:4px;width:24px;min-width:24px;height:30px;color:#ff6262}
+.equipmentSlotRow .clearSlot::before,.equipmentSlotRow .clearSlot::after{content:'';position:absolute;left:5px;top:13px;width:12px;height:2px;background:currentColor;border-radius:1px;transform:rotate(45deg);pointer-events:none}
+.equipmentSlotRow .clearSlot::after{transform:rotate(-45deg)}
+.equipmentSlotRow .clearSlot:hover:not(:disabled){color:#ff9090;border-color:#ff6262}
+.equipmentSlotRow .slotLabel{font-size:11px;color:var(--dim)}.equipmentSlotRow .itemButton{padding:7px;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.equipmentSlotRow select{grid-column:2/-1;margin:0;padding:5px;font-size:11px}
+#attachmentItems{margin:14px 0;border-top:1px solid var(--line);padding-top:10px}.attachmentRow{display:flex;gap:5px;margin:5px 0}.attachmentRow button{padding:6px;font-size:12px}.attachmentRow button:first-child{flex:1;min-width:0;text-align:left;overflow-wrap:anywhere}
+#equipmentSelected{margin:16px 0 8px;color:var(--accent);font-size:12px}
+#equipmentLayers{max-height:none;overflow:visible;padding:0}.equipmentLayer{margin:0;padding:0;background:none;border:0;border-radius:0}.equipmentLayer>strong{font-size:12px;margin:0 0 8px}.equipmentLayer>select{padding:7px;min-height:34px;margin:4px 0 8px}.equipmentLayer details{padding:0}.equipmentLayer .equipmentVector{gap:5px}.equipmentLayer input[type=number]{padding:7px;min-height:34px}.equipmentLayer .colorControl{margin-bottom:10px}
+.equipmentFooter{position:sticky;bottom:-14px;background:#1b1e24;padding:10px 0;margin-top:12px;flex-wrap:wrap;gap:6px;z-index:4}.equipmentFooter #equipmentError{flex-basis:100%;color:#edc68a;font-size:11px}.equipmentFooter #equipmentApply{min-width:0;flex:1;padding:9px;font-size:12px}#equipmentRevert{font-size:11px;padding:9px}
+#liveAdjustments{margin-top:12px}#equipmentLive{margin:0;border:0;padding:0}#liveSaber{margin:0}
+.library[data-picker=true]>:not(#equipmentPicker){display:none!important}#equipmentPicker{display:flex;flex-direction:column;flex:1;min-height:0}.pickerHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.pickerHeader h3{margin:0;font-size:14px}.pickerHeader button{padding:6px;font-size:12px}#equipmentPicker>section{display:flex;flex-direction:column;flex:1;min-height:0}#equipmentResults{height:auto;flex:1;min-height:100px;overflow:auto}#equipmentCategory{width:100%}#equipmentPicker label{margin-top:7px}
+#animationDock{display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;padding:12px 18px;background:#1b1e24;border-top:1px solid var(--line);height:205px;min-height:140px;flex:none}
+.animationList{display:flex;flex-direction:column;min-width:0;min-height:0}.animationList h3{margin:0 0 5px}.animationList>label{display:none}.animationList input[type=search]{min-height:30px;padding:6px;margin:0}.animationList .muted{font-size:11px;line-height:1.4;margin:4px 0}
+#clips{margin:0;min-height:30px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:2px}.clip{padding:6px}.animationList .pager{padding:5px 0 0;margin:4px 0 0}.animationList .pager button{padding:3px 8px;font-size:11px}
+.animationPlayback{min-width:0;overflow:auto}.transport{padding:0;margin:6px 0 12px;border:0;gap:10px}.transport button{padding:7px 14px}.transport select{padding:7px;min-height:32px}#expressionPanel{display:flex;align-items:center;flex-wrap:wrap;gap:7px}#expressionPanel h3,#expressionPanel>label{display:none}#expressionSelect{width:auto;max-width:260px;padding:7px;min-height:32px;margin:0}#expressionReset{padding:7px;font-size:12px}#expressionHelp{margin:0;flex-basis:100%;font-size:11px;line-height:1.45}
+.advancedPose{margin:8px 0 0}.advancedPose>summary{padding:3px 0}.advancedPose p{margin:4px 0}.advancedPose label{margin:5px 0}
+#browserAnimation select{width:100%;padding:7px}body[data-workspace=browser] #equipmentSlots{display:none}
+.stagebar{padding:11px 16px}.stagebar span{margin-top:3px}.stagebar button{padding:7px 9px}.viewportHelp{padding:3px 8px 6px}
+#assetPanel>small{display:none}#assetPanel h2{font-size:15px!important;margin:0 0 8px}#assetPanel{margin-bottom:18px}
+@media(max-height:800px){#animationDock{height:175px;padding:8px 14px}header{min-height:56px}.stagebar{padding:8px 12px}}
+@media(max-width:1200px){header{gap:8px;padding:8px 12px}header h1{font-size:15px}.actions{gap:4px}.actions button{padding:6px!important}aside{padding:12px}#animationDock{grid-template-columns:260px minmax(0,1fr)}.nativeActions,.equipmentFooter{bottom:-12px}}
+@media(max-width:900px){body{height:auto;min-height:100vh;overflow:auto}main{display:flex;flex-wrap:wrap;min-height:0}.panelDivider{display:none}.stage{order:-1;width:100%;height:500px}.library,.inspector{width:50%;max-height:650px;flex:none}#animationDock{height:240px;grid-template-columns:240px minmax(0,1fr)}}
+@media(max-width:550px){.library,.inspector{width:100%;max-height:none}.stage{height:440px}#animationDock{grid-template-columns:1fr;height:auto}.animationList{height:180px}.animationPlayback{overflow:visible}#clips{min-height:70px}.actions{margin-left:0}#equipmentPicker{min-height:350px}}
+
+/* Independent dock height and animation-list width; pagination stays outside scrolling clips. */
+#animationDock{height:var(--animation-height,205px);grid-template-columns:minmax(0,var(--animation-width,310px)) 8px minmax(0,1fr);gap:0;border-top:0}
+.animationDivider{touch-action:none;user-select:none;background:#252c34;flex:none;outline-offset:-2px}
+.animationDivider:hover,.animationDivider.dragging,.animationDivider:focus-visible{background:var(--accent)}
+.animationHeightDivider{height:7px;cursor:row-resize}
+.animationWidthDivider{cursor:col-resize;align-self:stretch}
+.animationPlayback{padding-left:12px}
+.animationList{padding-right:8px;overflow:hidden}
+.animationList>h3,.animationList>input,.animationList>.muted{flex-shrink:0}
+#clips{flex:1;min-height:0;overflow:auto;grid-template-columns:repeat(auto-fill,minmax(min(140px,100%),1fr));grid-auto-rows:minmax(34px,auto);align-content:start}
+#clips .clip{margin:0;min-width:0;overflow-wrap:anywhere;text-align:left}
+@media(max-width:550px){#animationDock{grid-template-columns:minmax(0,1fr);height:auto}.animationWidthDivider{display:none}.animationList{height:var(--animation-height,240px);padding-right:0}.animationPlayback{padding-left:0}}
+
+/* Equipment spans the viewport and animation rows. */
+@media(min-width:901px){
+ main{grid-template-rows:minmax(180px,1fr) 7px auto;min-height:0}
+ main>.library{grid-column:1;grid-row:1}
+ main>.stage{grid-column:3;grid-row:1;min-height:0}
+ main>.inspector{grid-column:5;grid-row:1/4;min-height:0}
+ main>.panelDivider[data-side=left]{grid-column:2;grid-row:1}
+ main>.panelDivider[data-side=right]{grid-column:4;grid-row:1/4}
+ main>.animationHeightDivider{grid-column:1/4;grid-row:2}
+ main>#animationDock{grid-column:1/4;grid-row:3;min-width:0}
+}
+@media(max-width:900px){main>.animationHeightDivider,main>#animationDock{width:100%;flex:none}}

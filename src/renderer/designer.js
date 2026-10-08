@@ -1,20 +1,21 @@
 // Native appearance choices are resolved by the same local data used for NPCs.
+import {colorMenu} from './color-menu.js';
 export function nativeDesigner(api,{getState,apply,status}){
- const $=id=>document.getElementById(id);let draft,options,sequence=0,lastParts=[];
+ const $=id=>document.getElementById(id);let draft,options,sequence=0,lastParts=[],baseline='';
  const bodies={male:['bma','bmn','bms','bmf'],female:['bfa','bfn','bfs','bfb']};
- function swatch(parent,label,value,change){
-  const title=document.createElement('label');title.textContent=label;parent.append(title);
-  const row=document.createElement('div');row.className='colorControl';
-  const picker=document.createElement('input');picker.type='color';picker.value=value||'#808080';picker.setAttribute('aria-label',label);
-  const hex=document.createElement('input');hex.type='text';hex.value=value||'';hex.placeholder='Original';hex.maxLength=7;hex.setAttribute('aria-label',label+' hex');
-  const set=v=>{if(v&&!/^#[0-9a-f]{6}$/i.test(v)){hex.setCustomValidity('Use #RRGGBB');hex.reportValidity();return;}hex.setCustomValidity('');hex.value=v||'';picker.value=v||'#808080';change(v||null);};
-  picker.oninput=()=>set(picker.value);hex.onchange=()=>set(hex.value&&!hex.value.startsWith('#')?'#'+hex.value:hex.value);
-  const reset=document.createElement('button');reset.textContent='Reset';reset.onclick=()=>set(null);row.append(picker,hex,reset);parent.append(row);
- }
+ const colorKeys={appSlotSkinColor:['skin','Skin color'],appSlotEyeColor:['eyes','Eye color'],appSlotHairColor:['hair','Hair color']};
+ function pending(){const changed=JSON.stringify(draft)!==baseline;$('nativeApply').textContent=changed?'Apply appearance · changes pending':'Apply appearance';$('nativeReset').disabled=!changed;}
+ function setColor(colors,key,channel,value){colors[key]??={};if(value)colors[key][channel]=value;else{delete colors[key][channel];if(!Object.keys(colors[key]).length)delete colors[key];}}
+ function globalMenu(key,title){const colors=draft.colors;return colorMenu('Custom '+title.toLowerCase(),[{label:'Color',value:colors[key]?.primary,change:value=>setColor(colors,key,'primary',value)}],pending);}
  async function refresh(){
-  const seq=++sequence;$('nativeApply').disabled=true;
-  try{const result=await api.designerOptions(draft);if(seq!==sequence)return;options=result;draft=result.designer;render();}
-  catch(e){status(e.message);}finally{if(seq===sequence)$('nativeApply').disabled=false;}
+  const seq=++sequence,requested=structuredClone(draft);$('nativeApply').disabled=true;
+  try{
+   const result=await api.designerOptions(requested);if(seq!==sequence)return;
+   // Color and ordinary appearance edits can arrive while dependent options load.
+   result.designer.colors=structuredClone(draft.colors);
+   for(const [slot,value] of Object.entries(draft.choices))if(value!==requested.choices[slot]&&(!value||result.groups[slot]?.some(choice=>choice.id===value)))result.designer.choices[slot]=value;
+   options=result;draft=result.designer;render();colors(lastParts);pending();$('nativeApply').disabled=false;
+  }catch(e){if(seq===sequence)status(e.message);}
  }
  function render(){
   $('nativeSpecies').replaceChildren(...options.species.map(s=>new Option(s.name,s.id)));$('nativeSpecies').value=draft.species;
@@ -23,38 +24,43 @@ export function nativeDesigner(api,{getState,apply,status}){
   const labels=options.profile.labels;
   for(const [slot,choices] of Object.entries(options.groups)){
    if(!choices.length)continue;
-   const label=document.createElement('label');label.textContent=labels[slot]||slot.replace('appSlot','');
+   const row=document.createElement('div');row.className='appearanceChoice';
+   const label=document.createElement('label');label.textContent=labels[slot]||slot.replace('appSlot','');label.htmlFor='choice-'+slot;
    const select=document.createElement('select');select.dataset.slot=slot;select.setAttribute('aria-label',label.textContent);
+   select.id='choice-'+slot;
    if(slot!=='appSlotHead')select.add(new Option('None / no override',''));
    choices.forEach((choice,index)=>{const option=new Option(`${index+1} · ${choice.label||choice.name}`,choice.id);option.title=[choice.name,...choice.attachments].join('\n');select.add(option);});
    const description=document.createElement('div');description.className='choiceDescription';
    const explain=()=>{const choice=choices.find(c=>c.id===select.value);description.replaceChildren();if(!choice)return;if(choice.swatch){const swatch=document.createElement('input');swatch.type='color';swatch.value=choice.swatch;swatch.disabled=true;swatch.title='Approximate native palette color';description.append(swatch);}const text=document.createElement('span');text.textContent=(choice.swatch?'Approximate palette · ':'')+(choice.label||choice.name);text.title=choice.name;description.append(text);};
 
    select.value=draft.choices[slot]||'';
-   select.onchange=()=>{draft.choices[slot]=select.value||null;explain();if(slot==='appSlotHead')refresh();};
-   explain();$('nativeChoices').append(label,select,description);
+   select.onchange=()=>{draft.choices[slot]=select.value||null;explain();pending();if(slot==='appSlotHead')return refresh();};
+   const controls=document.createElement('div');controls.className='appearanceControl';controls.append(select);
+   if(colorKeys[slot])controls.append(globalMenu(...colorKeys[slot]));
+   explain();row.append(label,controls,description);$('nativeChoices').append(row);
   }
   $('nativeSource').textContent=draft.sourceNpc?`Editing a copy of ${options.sourceName||'an NPC'}. Changes do not alter the source NPC.`:'Options from your installed game. Class and unlock restrictions are not enforced.';
  }
  function changeProfile(){draft.species=$('nativeSpecies').value;draft.body=bodies[$('nativeGender').value][Number($('nativeBody').value)-1];draft.choices={};draft.useNpcAppearance=false;return refresh();}
  for(const key of ['nativeSpecies','nativeGender','nativeBody'])$(key).onchange=changeProfile;
  $('nativeApply').onclick=async()=>{
-  const invalid=$('nativeDesigner').querySelector('input:invalid');if(invalid){invalid.reportValidity();return false;}
+  const invalid=$('nativeDesigner').querySelector('input:invalid');if(invalid){for(const parent of $('nativeDesigner').querySelectorAll('details'))if(parent.contains(invalid))parent.open=true;invalid.reportValidity();return false;}
   const current=getState();const changed=current.designer?.body!==draft.body;
   return apply({...current,version:2,character:'native-designer',designer:structuredClone(draft),appearance:{body:draft.body},hidden:changed?[]:current.hidden,time:changed?0:current.time});
  };
  $('nativeNew').onclick=()=>apply({...getState(),version:2,character:'native-designer',designer:{species:draft.species,body:draft.body,choices:{},colors:{}},appearance:{body:draft.body},clip:null,expression:null,time:0,hidden:[],equipment:[],weapon:'none',rootMotion:false});
- $('nativeReset').onclick=()=>sync(getState());
+ $('nativeReset').onclick=()=>sync(getState(),lastParts,true);
  function colors(parts){
+  const currentColors=draft.colors;
   $('nativeColors').replaceChildren();
-  const add=(parent,key,title)=>{for(const [channel,label] of [['primary','Primary'],['secondary','Secondary']])swatch(parent,title+' · '+label,draft.colors[key]?.[channel],value=>{draft.colors[key]??={};if(value)draft.colors[key][channel]=value;else delete draft.colors[key][channel];});};
-  const global=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Skin, eyes and hair';global.append(summary);
-  for(const [key,label] of [['skin','Skin'],['eyes','Eyes'],['hair','Hair / facial hair']])swatch(global,label,draft.colors[key]?.primary,value=>{draft.colors[key]??={};if(value)draft.colors[key].primary=value;else delete draft.colors[key].primary;});
-  $('nativeColors').append(global);
+  // Some species do not expose a native palette row. Keep supported custom overrides reachable.
+  for(const [slot,[key,title]] of Object.entries(colorKeys))if(!options.groups[slot]?.length){const row=document.createElement('div');row.className='pieceColorRow';const label=document.createElement('span');label.textContent=title;row.append(label,globalMenu(key,title));$('nativeColors').append(row);}
   const seen=new Set();for(const part of parts||[]){if(part.equipmentLayer!==undefined||!part.source||seen.has(part.source))continue;seen.add(part.source);
-   const details=document.createElement('details'),summary=document.createElement('summary');const name=part.source.split('/').at(-1).replace('.gr2','');const component=name.match(/_(?:a\d+|archetype)_(.+)$/)?.[1];summary.textContent=part.slot+(component?' · '+component.replaceAll('_',' '):'');summary.title=part.source;details.append(summary);add(details,part.source,'Dye');$('nativeColors').append(details);
+   const row=document.createElement('div');row.className='pieceColorRow';const label=document.createElement('span');const name=part.source.split('/').at(-1).replace('.gr2','');const component=name.match(/_(?:a\d+|archetype)_(.+)$/)?.[1];label.textContent=part.slot+(component?' · '+component.replaceAll('_',' '):'');label.title=part.source;
+   row.append(label,colorMenu(label.textContent+' colors',[['primary','Primary'],['secondary','Secondary']].map(([channel,title])=>({label:title,value:currentColors[part.source]?.[channel],change:value=>setColor(currentColors,part.source,channel,value)})),pending));$('nativeColors').append(row);
   }
  }
- async function sync(state,parts=lastParts){lastParts=parts;draft=structuredClone(state.designer||{species:'human',body:state.appearance?.body||'bmn',choices:{},colors:{}});draft.colors??={};await refresh();colors(parts);}
+ $('nativeDesigner').addEventListener('input',pending);$('nativeDesigner').addEventListener('change',pending);
+ async function sync(state,parts=lastParts,force=false){lastParts=parts;const incoming=JSON.stringify(state.designer||{species:'human',body:state.appearance?.body||'bmn',choices:{},colors:{}});if(force||incoming!==baseline||!draft){draft=JSON.parse(incoming);draft.colors??={};baseline=incoming;}await refresh();}
  return {sync,get draft(){return draft;}};
 }

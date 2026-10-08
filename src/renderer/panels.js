@@ -10,6 +10,7 @@ export function resizablePanels(){
  }
  for(const [side,panel] of [['left',left],['right',right]]){
   const handle=document.createElement('div');handle.className='panelDivider';handle.tabIndex=0;handle.setAttribute('role','separator');handle.setAttribute('aria-orientation','vertical');handle.setAttribute('aria-label',`Resize ${side} panel`);handle.title='Drag to resize · double-click to reset';handle.setAttribute('aria-valuemin',side==='left'?200:220);handles[side]=handle;
+  handle.dataset.side=side;
   if(side==='left')panel.after(handle);else panel.before(handle);
   function resize(value){const other=side==='left'?'right':'left';sizes[side]=Math.max(side==='left'?200:220,Math.min(value,main.clientWidth-332-panelLayout(main.clientWidth,sizes)[other]));layout();}
   function save(){try{localStorage.setItem('panelWidths',JSON.stringify(sizes));}catch{}}

@@ -32,8 +32,9 @@ community extraction and asset workflows.
 - Save character presets and export posed FBX with textures and optional bones.
 - Generate companion Unity Built-in materials and preserve their import metadata.
 
-[Version 0.2.2 notes](release/RELEASE-NOTES-0.2.2.md) describe the new storage and
-cache controls. See the [changelog](CHANGELOG.md) for release history.
+[Version 0.2.3 notes](release/RELEASE-NOTES-0.2.3.md) describe the split workspace,
+per-piece color menus, clear-slot buttons and resizable animation dock.
+See the [changelog](CHANGELOG.md) for release history.
 
 ## Export and update
 

@@ -29,6 +29,41 @@ community's extraction and asset workflows.
 Save a character preset to keep its appearance, equipment and pose. Presets refer
 to resources in your own game data; they do not embed the underlying assets.
 
+In Character Designer, appearance is on the left, equipment is on the right,
+and animation playback and facial expressions are in the bottom dock. Drag the
+panel dividers to resize the sidebars. The equipment panel extends to the bottom;
+the animation dock occupies the space beneath the appearance panel and viewer.
+Species-specific appearance choices follow the selected species, body and head.
+
+Drag the animation dock's top edge upward for more rows. Drag the divider beside
+the animation list to widen it and reveal more columns. Scroll within the list;
+**Previous** and **Next** remain available below it to change pages. Panel sizes
+are remembered. Double-click a divider to reset it, or focus it and use the arrow
+keys to resize (Home resets it).
+
+Use the small color dropdown beside Skin Color, Eye Color or Hair Color to set
+a custom override without replacing the native palette choice. **Reset** restores
+that channel's native color. Commit these edits with **Apply appearance**.
+
+Click an empty equipment slot or **Add item** to open the catalog on the left;
+the character remains visible. Select an equipped item to access **Replace item**,
+**Add layer**, component visibility, sockets, transforms and lightsaber settings.
+Items on unusual sockets stay in the independent **Attachments** list.
+
+Click the red **X** beside a filled slot to clear every equipment layer in that
+slot and return it to **Choose item**. This changes the draft immediately without
+needing to select the item first. **Apply equipment** commits the removal;
+**Revert changes** restores the applied equipment. Independent attachments and
+other slots are preserved. Use **Remove layer** in item details to remove only
+one layer from a slot containing several items.
+
+Each item's color dropdown includes **Whole item** and its individual mesh pieces.
+Choose a piece to edit its primary and secondary colors independently; resetting
+a piece removes its override so the whole-item or native color applies again.
+Component overrides remain available under **Colors / individual components**.
+Use **Apply equipment** to commit or **Revert changes** to discard pending edits.
+Apply appearance and equipment changes before saving a preset or exporting.
+
 ## Export and Unity
 
 **Export FBX** exports the selected pose with textures and optional editable bones.
