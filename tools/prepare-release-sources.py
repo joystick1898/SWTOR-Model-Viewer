@@ -108,7 +108,7 @@ def main():
     entries = []
     for directory in ('src', 'worker', 'assets', 'tools', 'tests', 'release', 'docs', '.github'):
         entries.extend((file, file.relative_to(PROJECT)) for file in source_files(PROJECT / directory))
-    for name in ('package.json', 'package-lock.json', 'development.example.json', 'README.md',
+    for name in ('package.json', 'package-lock.json', 'development.example.json', 'README.md', 'CHANGELOG.md',
                  'CONTRIBUTORS.md', 'CONTRIBUTING.md', 'THIRD-PARTY-NOTICES.txt',
                  'LICENSE', '.gitignore', 'Start-Viewer.cmd'):
         entries.append((PROJECT / name, Path(name)))

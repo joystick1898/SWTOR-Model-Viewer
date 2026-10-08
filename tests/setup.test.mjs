@@ -81,10 +81,18 @@ test('mixed versions and later game updates publish fresh catalogs automatically
     const options={home,project:root,runtime:{python:process.execPath,blender:process.execPath,addons:root},sources:{resources,game}};
     const first=await prepareData(options);assert.equal(first.sourceCheck.mismatch,true);
     assert.equal((await prepareData(options)).data,first.data,'unchanged data should reuse the completed snapshot');
+    const tuned=await prepareData({...options,storage:{cache:{limitGiB:0.5,maxAgeDays:7,clearOnExit:true}}});
+    assert.equal(tuned.data,first.data,'cache preference changes should not rebuild');
+    assert.deepEqual((await readSettings(home)).cache,{limitGiB:0.5,maxAgeDays:7,clearOnExit:true});
     await fs.writeFile(path.join(game,'Assets/swtor_main_test.tor'),'updated game contents');
     const next=await prepareData(options);assert.notEqual(next.data,first.data);
     assert.equal((await readSettings(home)).data,next.data);
     assert.equal(JSON.parse(await fs.readFile(path.join(next.data,'equipment/catalog.json'),'utf8')).items[0].id,'new-equipment');
     await fs.access(path.join(first.data,'ready.json'));
+    const relocated=await prepareData({...options,storage:{storageHome:path.join(root,'other-drive')}});
+    assert.equal(path.dirname(relocated.data),path.join(root,'other-drive','snapshots'));
+    assert.equal(relocated.previousSnapshot,next.data);assert.equal(relocated.cache.limitGiB,0.5);
+    await fs.access(path.join(next.data,'ready.json'));
+    await assert.rejects(prepareData({...options,storage:{storageHome:path.join(resources,'cache')}}),/outside game/);
   }finally{await fs.rm(root,{recursive:true,force:true});}
 });

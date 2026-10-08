@@ -149,9 +149,11 @@ async function convertCharacter(state,mode,notify,npcAssembly){
       const child=spawn(config.blender,['--background','--factory-startup','--disable-autoexec','--python-exit-code','1','--python',path.join(project,'worker/convert.py'),'--',input],{cwd:project,windowsHide:true});
       let log='';const append=data=>{log=(log+data.toString()).slice(-20000);};
       child.stdout.on('data',append);child.stderr.on('data',append);
-      const timeout=setTimeout(()=>{child.kill();reject(Error('Conversion timed out after ten minutes'));},600000);
+      let timedOut=false;
+      // Cleanup may run after rejection, so wait for the writer to actually exit.
+      const timeout=setTimeout(()=>{timedOut=true;child.kill();},600000);
       child.on('error',error=>{clearTimeout(timeout);reject(error);});
-      child.on('close',async code=>{clearTimeout(timeout);try{await fs.writeFile(path.join(output,'worker.log'),log);code===0?resolve():reject(Error(`Conversion failed. ${log.slice(-1800)}`));}catch(error){reject(error);}});
+      child.on('close',async code=>{clearTimeout(timeout);try{await fs.writeFile(path.join(output,'worker.log'),log);timedOut?reject(Error('Conversion timed out after ten minutes')):code===0?resolve():reject(Error(`Conversion failed. ${log.slice(-1800)}`));}catch(error){reject(error);}});
     });
     return {...JSON.parse(await fs.readFile(resultPath,'utf8')),...expressionInfo};
   }finally{busy=false;}

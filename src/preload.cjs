@@ -1,5 +1,6 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('viewer',{
+  storageInfo:()=>ipcRenderer.invoke('storage-info'),storageClear:()=>ipcRenderer.invoke('storage-clear'),
   setupCancel:()=>ipcRenderer.invoke('setup-cancel'),
   setupBack:()=>ipcRenderer.invoke('setup-back'),
   setupInfo:()=>ipcRenderer.invoke('setup-info'),setupFolder:()=>ipcRenderer.invoke('setup-folder'),setupStart:value=>ipcRenderer.invoke('setup-start',value),settings:()=>ipcRenderer.invoke('open-settings'),

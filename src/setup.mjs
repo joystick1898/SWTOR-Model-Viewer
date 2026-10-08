@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {spawn} from 'node:child_process';
+import {cachePolicy,claimStorage} from './cache-policy.mjs';
 
 export const catalogRevision=2;
 export async function validateCatalogs(data){
@@ -74,23 +75,33 @@ export function runWorker(executable,args,{cwd,env,onProgress=()=>{},signal}){
     child.on('error',reject);child.on('close',code=>{signal?.removeEventListener('abort',cancel);if(signal?.aborted)reject(Error('Setup cancelled. Previous settings are intact.'));else code===0?resolve(tail):reject(Error('Data preparation failed: '+tail.slice(-3000)));});
   });
 }
-export async function prepareData({home,project,runtime,sources,rebuild=false,notify=()=>{},signal}){
+export async function prepareData({home,project,runtime,sources,rebuild=false,notify=()=>{},signal,storage}){
   sources=await validateSources(sources);
   for(const key of ['python','blender','addons'])await fs.access(runtime[key]).catch(()=>{throw Error('The app runtime is missing '+key+'. Re-extract the complete application package.');});
   const before=await fingerprint(sources,notify,signal);
   const previous=await readSettings(home);
-  const snapshots=path.join(home,'snapshots');
+  const policy=cachePolicy(storage?.cache??previous?.cache);
+  const storageHome=storage?.storageHome||previous?.storageHome||home;
+  if(!path.isAbsolute(storageHome))throw Error('Choose an absolute storage folder.');
+  for(const source of [sources.resources,sources.game]){
+    const relative=path.relative(source,storageHome);
+    if(!relative||(!relative.startsWith('..')&&!path.isAbsolute(relative)))throw Error('Generated data must be stored outside game and resource folders.');
+  }
+  const snapshots=path.join(storageHome,'snapshots');
+  await claimStorage(storageHome,home);
   if(!rebuild&&previous?.fingerprint===before.id&&previous.data?.startsWith(snapshots+path.sep)){
     try{
       const manifest=JSON.parse(await fs.readFile(path.join(previous.data,'ready.json'),'utf8'));
       if(manifest.fingerprint===before.id&&manifest.revision===catalogRevision){
         await validateCatalogs(previous.data);
-        return previous;
+        const updated={...previous,cache:policy,storageHome};
+        await writeSettings(home,updated);return updated;
       }
     }catch{}
   }
   const data=path.join(snapshots,before.id.slice(0,16)+'-'+randomUUID().slice(0,8));
   await fs.mkdir(data,{recursive:true});
+  await fs.writeFile(path.join(data,'building.json'),JSON.stringify({fingerprint:before.id}));
   const env={...process.env,SWTOR_DATA:data,SWTOR_RESOURCES:sources.resources,SWTOR_GAME:sources.game,SWTOR_BLENDER:runtime.blender,SWTOR_ADDONS:runtime.addons,SWTOR_PYTHON:runtime.python,PYTHONDONTWRITEBYTECODE:'1',PYTHONUNBUFFERED:'1',PYTHONUTF8:'1'};
   const jobs=[['build_local_npcs.py','NPC appearances'],['build_equipment.py','equipment'],['build_designer.py','character choices'],['build_designer_labels.py','appearance labels'],['build_asset_names.py','search names']];
   try{
@@ -106,8 +117,9 @@ export async function prepareData({home,project,runtime,sources,rebuild=false,no
     await validateCatalogs(data);
     const after=await fingerprint(sources,notify,signal);
     if(after.id!==before.id)throw Error('SWTOR data changed during setup. Wait for extraction or the game update to finish, then retry. Previous settings are intact.');
-    const result={version:1,...sources,data,fingerprint:before.id,files:before.files,preparedAt:new Date().toISOString(),sourceCheck};
+    const result={version:1,...sources,data,cache:policy,storageHome,previousSnapshot:previous?.data!==data?previous?.data:previous?.previousSnapshot,fingerprint:before.id,files:before.files,preparedAt:new Date().toISOString(),sourceCheck};
     await fs.writeFile(path.join(data,'ready.json'),JSON.stringify({revision:catalogRevision,fingerprint:before.id}));
+    await fs.unlink(path.join(data,'building.json'));
     await writeSettings(home,result);return result;
   }catch(error){await fs.writeFile(path.join(data,'failure.txt'),error.stack||error.message);throw error;}
 }

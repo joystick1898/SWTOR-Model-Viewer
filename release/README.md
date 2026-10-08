@@ -33,6 +33,8 @@ ZIP timestamps are clamped automatically when a dependency predates 1980.
 inventory includes release documents and source metadata. `inventoryHash` tracks
 paths and sizes; the final ZIP SHA-256 hashes identify the actual archive contents.
 Previous versions remain in `dist`; increment the project version for a new release.
+The portable package also includes `CHANGELOG.md`, `RELEASE-NOTES.md` for the
+packaged version, and `docs/USER-GUIDE.md`.
 
 ## Verification
 

@@ -8,6 +8,17 @@
 <label for="resources">Extracted Resources folder</label><div class="folder"><input id="resources" required placeholder="Select the folder containing art, anim and gamedata"><button type="button" id="resourcesBrowse">Browse…</button></div>
 <label for="game">SWTOR installation</label><div class="folder"><input id="game" required placeholder="Select the game folder containing Assets"><button type="button" id="gameBrowse">Browse…</button></div>
 <p class="hint">New game data is detected on launch. The app refreshes names and catalogs automatically, and recovers missing dependencies from your installation. A new extraction can be selected here at any time.</p>
+<fieldset><legend>Storage and preview cache</legend>
+<p id="storageUsage" class="hint" role="status">Measuring generated data…</p>
+<label for="storageHome">Generated data folder</label><div class="folder"><input id="storageHome" required><button type="button" id="storageBrowse">Browse…</button></div>
+<p class="hint">Choose another drive to store catalogs, recovered resources and previews there. Changing location rebuilds the data, then removes the previous snapshot after successful startup. Settings remain in your app data folder.</p>
+<label for="cacheLimit">Preview and material cache limit (GiB)</label><input id="cacheLimit" type="number" min="0" max="1024" step="0.25" value="2" required>
+<label for="cacheAge">Remove previews unused for this many days</label><input id="cacheAge" type="number" min="1" max="3650" step="1" value="14" required>
+<label class="check"><input id="clearOnExit" type="checkbox"> Clear previews when closing</label>
+<p class="hint">0 GiB keeps no previews between requests. Smaller limits require more rebuilding. Catalogs and recovered game resources are additional storage; conversions temporarily need extra working space. Saved exports and presets are never cleared. Old snapshots are removed after successful setup.</p>
+<button type="button" id="clearCache">Clear preview cache now</button>
+<p class="hint">Clears the currently saved storage location. The next preview may take longer.</p>
+</fieldset>
 <label class="check"><input type="checkbox" id="rebuild"> Rebuild catalogs and previews from scratch</label>
 <p class="hint">Use this after re-extracting files if they kept their original dates. Existing data is retained until the replacement is ready.</p>
 <button type="submit" id="start">Prepare data and open viewer</button>

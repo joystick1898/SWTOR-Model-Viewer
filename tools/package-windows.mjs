@@ -37,6 +37,9 @@ for(const name of ['START-HERE.txt','THIRD-PARTY-NOTICES.txt','SOURCE-CODE.txt']
 }
 await fs.copyFile(path.join(project,'CONTRIBUTORS.md'),path.join(app,'CONTRIBUTORS.md'));
 await fs.copyFile(path.join(project,'LICENSE'),path.join(app,'VIEWER-LICENSE.txt'));
+await fs.copyFile(path.join(project,'CHANGELOG.md'),path.join(app,'CHANGELOG.md'));
+await fs.copyFile(path.join(project,'release',`RELEASE-NOTES-${pkg.version}.md`),path.join(app,'RELEASE-NOTES.md'));
+await fs.cp(path.join(project,'docs'),path.join(app,'docs'),{recursive:true});
 await fs.cp(path.join(project,'release/licenses'),path.join(app,'licenses'),{recursive:true});
 const sourceDirectory=path.join(build,'sources');
 const prepared=await promisify(execFile)(local.python,[path.join(project,'tools/prepare-release-sources.py'),'--output',sourceDirectory,'--app',app],{maxBuffer:1024*1024});

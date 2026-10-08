@@ -51,7 +51,41 @@ The app reads the selected extraction and can recover missing dependencies from
 the installed game into its own cache. It does not overwrite the extraction or
 the installed game. A new extraction is needed to replace outdated source art.
 
-## Limits
+## Storage and cache
+
+Open **Settings → Storage and preview cache** to see preview-cache usage and
+required catalog/resource usage separately. The default location is
+`%APPDATA%/SWTOR Model Viewer` (normally `AppData/Roaming` on Windows).
+
+- **Cache limit:** defaults to 2 GiB, shared by generated previews and baked
+  materials. Least recently used previews are removed when the limit is exceeded.
+  Set any limit from 0 to 1024 GiB in 0.25 GiB steps; 0 retains no previews between
+  requests. Smaller limits trade disk space for additional conversion time.
+- **Age:** previews unused for 14 days expire by default. This can be changed
+  from 1 to 3650 days. Reopening a cached preview refreshes its last-use time.
+- **Clear previews when closing:** discards the reusable cache on a normal exit;
+  the next startup also clears leftovers after an interrupted session.
+- **Clear preview cache now:** immediately clears the currently saved location.
+- **Generated data folder:** can be placed on another drive. Apply with
+  **Prepare data and open viewer**. Changing location rebuilds catalogs; the old
+  snapshot is removed after the replacement has been prepared and opened.
+  Changing the limit or age alone does not require rebuilding catalogs.
+
+The limit covers retained previews and shared baked materials, not catalogs,
+recovered source files, settings, or Electron's browser caches. Working conversions
+can temporarily exceed it; oversized previews are discarded after their bytes
+have been delivered to the viewer. Cleanup runs at startup, after preview/export
+requests, and on exit. The viewer works from its loaded model in memory.
+
+Export intermediates are removed after each request has finished, including failed
+requests; completed exports in your chosen destination are independent of the
+cache. Saved presets and exports are never targeted by cleanup. Obsolete and failed
+setup snapshots are cleaned after a successful startup. If files cannot be removed
+(for example, because another program holds them open), cleanup reports the problem
+and retries on a later operation. Only one viewer process per user-data location
+may run, and independently configured viewers cannot share a generated-data folder.
+
+## Rendering limits
 
 The app approximates game materials and some saber effects. Full cloth physics,
 all game-specific behavior, and animation-sequence export are not implemented.

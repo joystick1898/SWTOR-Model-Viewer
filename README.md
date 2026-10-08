@@ -32,8 +32,8 @@ community extraction and asset workflows.
 - Save character presets and export posed FBX with textures and optional bones.
 - Generate companion Unity Built-in materials and preserve their import metadata.
 
-[Version 0.2.1 notes](release/RELEASE-NOTES-0.2.1.md) describe the latest live saber,
-facial-reference, cache and material-export fixes.
+[Version 0.2.2 notes](release/RELEASE-NOTES-0.2.2.md) describe the new storage and
+cache controls. See the [changelog](CHANGELOG.md) for release history.
 
 ## Export and update
 
@@ -46,6 +46,16 @@ To update, close the app and extract the new version into its own folder.
 Settings and caches stay in `%APPDATA%/SWTOR Model Viewer`. Source folders can be
 changed in Settings. The app reads game resources and keeps recovered files in
 its own cache without modifying the installed game or extraction.
+
+Settings includes storage usage, a generated-data folder picker, **Clear preview
+cache**, and a configurable preview/material cache limit (default **2 GiB**).
+Previews unused for **14 days** expire by default; least recently used previews
+are removed sooner when the limit is reached. Set the limit to **0 GiB** to retain
+no previews between requests, or enable clearing previews on exit. Catalogs and
+recovered game resources require additional space, and conversions temporarily
+need extra working space. Smaller caches mean slower repeat previews. Successful
+setup removes obsolete snapshots; completed export intermediates are discarded.
+Saved exports and presets are kept. See the [storage guide](docs/USER-GUIDE.md#storage-and-cache).
 
 ## Development
 

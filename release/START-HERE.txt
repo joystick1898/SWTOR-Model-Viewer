@@ -11,8 +11,14 @@ On first launch, select your extracted SWTOR Resources folder and your installed
 Star Wars: The Old Republic game folder. These can be changed in Settings.
 The app does not include game models, textures, animations, or extracted data.
 
-Settings and caches live in %APPDATA%/SWTOR Model Viewer. To update, close the
-viewer and replace the application folder; retain your settings/data folder.
+Settings live in %APPDATA%/SWTOR Model Viewer. Settings offers a generated-data
+folder picker, storage usage, Clear preview cache, and a cache limit (2 GiB by
+default). Previews expire after 14 unused days by default. Catalogs and recovered
+resources use additional space; conversions need temporary working space.
+Old snapshots are cleaned after successful setup. Saved exports are kept.
+To update, close the viewer and replace the application folder; retain your
+settings/data folder. Read docs/USER-GUIDE.md, RELEASE-NOTES.md and CHANGELOG.md
+for storage controls, update instructions and release history.
 
 The executable is unsigned. The package is portable; no installer is required.
 Posed FBX export is supported; full animation export and cloth physics are not.

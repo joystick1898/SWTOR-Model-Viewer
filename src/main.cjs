@@ -8,12 +8,26 @@ if(process.argv.includes('--smoke'))app.setPath('userData',path.join(project,'ou
 else app.setPath('userData',process.env.SWTOR_USER_HOME||path.join(app.getPath('appData'),'SWTOR Model Viewer'));
 protocol.registerSchemesAsPrivileged([{scheme:'viewer',privileges:{standard:true,secure:true,supportFetchAPI:true}}]);
 let window,backend;
+// One process owns this user's generated data, including cleanup and workers.
+if(!app.requestSingleInstanceLock()){app.quit();}else{
 app.whenReady().then(async()=>{
   const smoke=process.argv.includes('--smoke');
   if(app.isPackaged)process.env.SWTOR_PACKAGED='1';
   const setup=await import('./setup.mjs');
-  let preparing=false,setupAbort;
-  app.on('before-quit',()=>setupAbort?.abort());
+  const cache=await import('./cache-policy.mjs');
+  let currentSettings,operation=Promise.resolve(),quitting=false,preparing=false,setupAbort;
+  const serialize=callback=>{const next=operation.then(callback);operation=next.catch(()=>{});return next;};
+  async function maintain(clear=false){
+    if(currentSettings?.data&&!smoke)try{await cache.cleanCache(currentSettings.data,currentSettings.cache,clear,Date.now(),false);}catch(error){
+      console.error('Cache cleanup:',error);if(window&&!window.isDestroyed())window.webContents.send('progress','Cache cleanup could not finish: '+error.message);
+    }
+  }
+  app.on('second-instance',()=>{if(window){if(window.isMinimized())window.restore();window.focus();}});
+  app.on('before-quit',event=>{
+    if(quitting||smoke)return;
+    event.preventDefault();setupAbort?.abort();
+    serialize(async()=>{await maintain(currentSettings?.cache?.clearOnExit===true);quitting=true;app.quit();});
+  });
   const home=app.getPath('userData');
   let runtime;
   if(app.isPackaged){
@@ -23,12 +37,18 @@ app.whenReady().then(async()=>{
     try{runtime=JSON.parse(await fs.readFile(path.join(project,'development.local.json'),'utf8'));}catch{runtime={};}
   }
   async function launch(settings){
+    currentSettings=settings;
+    await maintain(settings.cache?.clearOnExit===true);
     if(app.isPackaged)process.env.SWTOR_FIXTURE='';
     for(const [key,value] of Object.entries({...runtime,...settings}))if(['resources','game','python','blender','addons','data'].includes(key))process.env['SWTOR_'+key.toUpperCase()]=value;
     process.env.PYTHONDONTWRITEBYTECODE='1';
     process.env.PYTHONUTF8='1';
     backend=await import('./backend.mjs');
     await window.loadURL('viewer://app/src/renderer/index.html');
+    try{
+      await cache.cleanSnapshots(path.dirname(settings.data),settings.data);
+      if(settings.previousSnapshot&&path.dirname(settings.previousSnapshot)!==path.dirname(settings.data))await cache.removeSnapshot(settings.previousSnapshot);
+    }catch(error){console.error('Snapshot cleanup:',error);}
   }
   protocol.handle('viewer',async request=>{
     const url=new URL(request.url);
@@ -47,8 +67,15 @@ app.whenReady().then(async()=>{
     }
     return net.fetch(pathToFileURL(resolved).href);
   });
-  function handle(name,callback){ipcMain.handle(name,(event,...args)=>{if(event.sender!==window.webContents||!event.senderFrame.url.startsWith('viewer://app/'))throw Error('Invalid sender');return callback(...args);});}
+  const conversions=new Set(['preview','npc-preview','asset-preview','export-fbx','export-npc-fbx','export-asset-fbx']);
+  function handle(name,callback){ipcMain.handle(name,(event,...args)=>{
+    if(event.sender!==window.webContents||!event.senderFrame.url.startsWith('viewer://app/'))throw Error('Invalid sender');
+    if(name==='setup-cancel')return callback(...args);
+    return serialize(async()=>{try{return await callback(...args);}finally{if(conversions.has(name))await maintain();}});
+  });}
   handle('setup-info',async()=>({settings:await setup.readSettings(home),version:app.getVersion(),packaged:app.isPackaged,dataHome:home,canReturn:!!backend}));
+  handle('storage-info',async()=>{const settings=await setup.readSettings(home);return {...await cache.storageUsage(settings?.data),location:settings?.storageHome||home};});
+  handle('storage-clear',async()=>{const settings=await setup.readSettings(home);return settings?.data?cache.cleanCache(settings.data,settings.cache,true):cache.storageUsage();});
   handle('setup-back',async()=>{if(backend&&!preparing)await window.loadURL('viewer://app/src/renderer/index.html');});
   handle('setup-folder',async()=>{const result=await dialog.showOpenDialog(window,{title:'Choose folder',properties:['openDirectory']});return result.canceled?null:result.filePaths[0];});
   handle('open-settings',async()=>{
@@ -60,10 +87,10 @@ app.whenReady().then(async()=>{
     preparing=true;
     setupAbort=new AbortController();
     try{
-      const settings=await setup.prepareData({home,project,runtime,sources:value,rebuild:value.rebuild===true,signal:setupAbort.signal,notify:message=>{if(!window.isDestroyed())window.webContents.send('progress',message);}});
-      if(backend){app.relaunch();app.exit(0);return;}
+      const settings=await setup.prepareData({home,project,runtime,sources:value,storage:value.storage,rebuild:value.rebuild===true,signal:setupAbort.signal,notify:message=>{if(!window.isDestroyed())window.webContents.send('progress',message);}});
+      if(backend){await maintain(currentSettings?.cache?.clearOnExit===true);app.relaunch();app.exit(0);return;}
       // Let the invoking page receive its result before navigating away.
-      setTimeout(()=>launch(settings).catch(e=>dialog.showErrorBox('Viewer could not start',e.message)),100);
+      setTimeout(()=>serialize(()=>launch(settings)).catch(e=>dialog.showErrorBox('Viewer could not start',e.message)),100);
       return {ok:true,warning:settings.sourceCheck?.warning};
     }finally{preparing=false;setupAbort=null;}
   });
@@ -158,3 +185,4 @@ app.whenReady().then(async()=>{
   else await window.loadURL('viewer://app/src/renderer/setup.html');
 });
 app.on('window-all-closed',()=>app.quit());
+}
