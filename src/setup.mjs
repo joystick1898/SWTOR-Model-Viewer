@@ -20,6 +20,16 @@ export async function writeSettings(home,value){
   await fs.writeFile(temporary,JSON.stringify({...value,version:1},null,2));
   await fs.rename(temporary,path.join(home,'settings.json'));
 }
+// A selected folder may not exist yet. Resolve its nearest existing ancestor
+// before containment checks, including Windows short names and junction aliases.
+export async function canonicalStorageHome(folder){
+  if(typeof folder!=='string'||!path.isAbsolute(folder))throw Error('Choose an absolute storage folder.');
+  let parent=path.resolve(folder);const suffix=[];
+  while(true){
+    try{return path.join(await fs.realpath(parent),...suffix);}
+    catch(error){if(error.code!=='ENOENT')throw error;const next=path.dirname(parent);if(next===parent)throw error;suffix.unshift(path.basename(parent));parent=next;}
+  }
+}
 export async function validateSources(value){
   const result={};
   for(const key of ['resources','game']){
@@ -81,8 +91,7 @@ export async function prepareData({home,project,runtime,sources,rebuild=false,no
   const before=await fingerprint(sources,notify,signal);
   const previous=await readSettings(home);
   const policy=cachePolicy(storage?.cache??previous?.cache);
-  const storageHome=storage?.storageHome||previous?.storageHome||home;
-  if(!path.isAbsolute(storageHome))throw Error('Choose an absolute storage folder.');
+  const storageHome=await canonicalStorageHome(storage?.storageHome||previous?.storageHome||home);
   for(const source of [sources.resources,sources.game]){
     const relative=path.relative(source,storageHome);
     if(!relative||(!relative.startsWith('..')&&!path.isAbsolute(relative)))throw Error('Generated data must be stored outside game and resource folders.');

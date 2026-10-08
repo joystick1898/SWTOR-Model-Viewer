@@ -94,5 +94,8 @@ test('mixed versions and later game updates publish fresh catalogs automatically
     assert.equal(relocated.previousSnapshot,next.data);assert.equal(relocated.cache.limitGiB,0.5);
     await fs.access(path.join(next.data,'ready.json'));
     await assert.rejects(prepareData({...options,storage:{storageHome:path.join(resources,'cache')}}),/outside game/);
+    const alias=path.join(root,'resource-alias');await fs.symlink(resources,alias,'junction');
+    await assert.rejects(prepareData({...options,storage:{storageHome:path.join(alias,'cache')}}),/outside game/);
+    assert.equal(await fs.access(path.join(resources,'cache')).then(()=>true,()=>false),false,'rejected storage choices must not write into sources');
   }finally{await fs.rm(root,{recursive:true,force:true});}
 });

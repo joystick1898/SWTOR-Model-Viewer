@@ -14,6 +14,7 @@
   for conversion workers and export copies to finish before cleanup.
 - Preserve saved exports and presets. Document additional catalog/resource space
   and temporary conversion space in setup, the user guide and release documents.
+- Resolve Windows folder aliases before validating the generated-data location.
 - Add cache regression coverage to Windows source checks and include the user
   guide, release notes and changelog in the portable package.
 
