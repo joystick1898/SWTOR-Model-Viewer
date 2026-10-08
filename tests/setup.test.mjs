@@ -90,7 +90,7 @@ test('mixed versions and later game updates publish fresh catalogs automatically
     assert.equal(JSON.parse(await fs.readFile(path.join(next.data,'equipment/catalog.json'),'utf8')).items[0].id,'new-equipment');
     await fs.access(path.join(first.data,'ready.json'));
     const relocated=await prepareData({...options,storage:{storageHome:path.join(root,'other-drive')}});
-    assert.equal(path.dirname(relocated.data),path.join(root,'other-drive','snapshots'));
+    assert.equal(path.dirname(relocated.data),path.join(await fs.realpath(root),'other-drive','snapshots'));
     assert.equal(relocated.previousSnapshot,next.data);assert.equal(relocated.cache.limitGiB,0.5);
     await fs.access(path.join(next.data,'ready.json'));
     await assert.rejects(prepareData({...options,storage:{storageHome:path.join(resources,'cache')}}),/outside game/);
