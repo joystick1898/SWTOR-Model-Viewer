@@ -42,8 +42,23 @@ try{
   await fs.writeFile('output/standalone-viewer.png',Buffer.from((await call('Page.captureScreenshot',{format:'png'})).data,'base64'));
   const report=await evaluate('(async()=>({info:await viewer.setupInfo(),npcs:await viewer.npcs({query:"Malgus",offset:0}),assets:await viewer.assets({query:"Senya",offset:0}),status:document.getElementById("status").textContent}))()');
   if(!report.info.packaged||!report.npcs.total||!report.assets.total)throw Error('Packaged catalog checks failed');
+  const zgControls=await evaluate(`(async()=>{
+    const {colorMenu}=await import('./color-menu.js');
+    const {paletteChannel}=await import('./palette-channel.js');
+    const colors={};
+    const menu=colorMenu('Release test',[paletteChannel(()=>colors,'*','primary','primary',undefined,null,()=>({hue:.898,saturation:.5,brightness:-.032,contrast:1.029}))]);
+    document.body.append(menu);
+    const brightness=menu.querySelector('[aria-label$="primary native brightness"]');
+    menu.querySelector('[aria-label="Increase primary brightness by 0.1"]').click();
+    const autoStep=brightness.value==='0.068';
+    brightness.value='-.032';brightness.dispatchEvent(new Event('change'));
+    brightness.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));
+    const typedPrecision=brightness.value==='-0.132';menu.remove();
+    return {exportEnabled:!document.getElementById('exportZG').disabled,ipcAvailable:typeof viewer.exportZG==='function',autoStep,typedPrecision};
+  })()`);
+  if(!Object.values(zgControls).every(Boolean))throw Error('Packaged ZG/color controls failed: '+JSON.stringify(zgControls));
   const summarize=value=>({total:value.total,indexed:value.indexed,samples:value.items.slice(0,3).map(({id,name})=>({id,name}))});
-  await fs.writeFile('reports/standalone-packaged-ui.json',JSON.stringify({ok:true,info:report.info,status:report.status,npcs:summarize(report.npcs),assets:summarize(report.assets)},null,2));console.log('PACKAGED UI PASS');
+  await fs.writeFile('reports/standalone-packaged-ui.json',JSON.stringify({ok:true,zgControls,info:report.info,status:report.status,npcs:summarize(report.npcs),assets:summarize(report.assets)},null,2));console.log('PACKAGED UI PASS');
 }finally{
   socket?.close();
   if(child.exitCode===null)spawn('taskkill',['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});

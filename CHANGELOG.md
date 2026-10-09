@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased — 0.2.4
+## 0.2.4 — 2026-10-09
 
-ZG Tools Character Assembler compatibility update. Implemented in the source;
-the latest published Windows package remains 0.2.3 until 0.2.4 is built and published.
+ZG Tools Character Assembler compatibility update. Windows and matching Sources
+packages are available from [Releases](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.4).
 See [0.2.4 release notes](release/RELEASE-NOTES-0.2.4.md) for usage, verification and limits.
 
 - Fixed a workspace-switch crash when live attachment controls still referenced

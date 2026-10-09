@@ -1,9 +1,8 @@
 # Using SWTOR Model Viewer
 
-This guide follows the current source and upcoming 0.2.4 release. The latest
-published Windows package is 0.2.3; **Export for ZG Tools**, native color
-fine-tuning and per-piece-only dye menus require the newer source or a future
-0.2.4 package. See [release status and notes](../release/RELEASE-NOTES-0.2.4.md).
+This guide follows version 0.2.4. **Export for ZG Tools**, native color
+fine-tuning and per-piece-only dye menus require 0.2.4 or newer.
+See [release notes](../release/RELEASE-NOTES-0.2.4.md).
 
 ## First launch
 
@@ -89,7 +88,7 @@ validated. Bloom is a setting in the destination Unity scene.
 
 ## Export for ZG Tools
 
-Available in the upcoming 0.2.4 update. See the
+Available in version 0.2.4 and newer. See the
 [ZG compatibility guide](ZG-COMPATIBILITY.md) for tested versions and limitations.
 
 In **Character Designer** or **NPC Browser**, use **Export for ZG Tools** and

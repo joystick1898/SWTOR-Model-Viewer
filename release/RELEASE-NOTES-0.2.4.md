@@ -1,8 +1,12 @@
 # SWTOR Model Viewer 0.2.4 — ZG Tools Character Assembler compatibility
 
-**Status: upcoming release.** The features are implemented in the repository's
-source. New Windows and Sources archives have not yet been built or published.
-The latest downloadable package remains 0.2.3 and does not include this update.
+Released October 9, 2026. Download **SWTOR-Model-Viewer-0.2.4-Windows-x64.zip**,
+extract the entire folder, and run **SWTOR Model Viewer.exe**. Blender, Python
+and the viewer's GR2 importer are bundled. Supply your own game installation
+and extracted Resources folder. The executable is unsigned and portable.
+
+The matching **SWTOR-Model-Viewer-0.2.4-Sources.zip** and SHA-256 files accompany
+the Windows download. Earlier 0.2.3 packages do not contain this update.
 
 ## What's changed
 
@@ -60,11 +64,15 @@ Source checks passed: 71 JavaScript tests and 24 Blender/Python regressions,
 checks. The unmodified ZG Character Assembler imported the reviewed head-visible
 character with 12 models, materials, loaded textures and skeleton bindings.
 Windows source CI passed, including 31 checks requiring no game resources.
-These are source/integration results; 0.2.4 portable-package verification is pending.
+The 0.2.4 portable package also passed first setup and updated startup, native
+color controls and ZG export validation. Helmet/head, wheel-red and fine-tuned
+exports passed using packaged code and runtimes; the fine-tuned output imported
+12 models with the target ZG add-ons. Three packaged posed FBX exports passed
+re-import checks. Both distribution ZIPs passed CRC and SHA-256 verification.
 
 Existing presets remain supported. Older preview caches regenerate for the new
-palette metadata. Once the package is published, close the viewer and extract it
-into a new folder; retain your settings and saved presets.
+palette metadata. Close the viewer and extract the update into a new folder; retain your settings
+and saved presets.
 
 See the [user guide](../docs/USER-GUIDE.md), [compatibility guide](../docs/ZG-COMPATIBILITY.md)
 and [changelog](../CHANGELOG.md). Free community software under GPL-3.0-or-later,

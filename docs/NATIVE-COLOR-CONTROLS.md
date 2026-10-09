@@ -1,7 +1,7 @@
 # Native color controls and visibility export
 
-Implemented October 9, 2026 in the development source for upcoming 0.2.4.
-The published 0.2.3 Windows package does not include these controls. See the
+Included in version 0.2.4, released October 9, 2026.
+Older 0.2.3 packages do not include these controls. See the
 [release notes](../release/RELEASE-NOTES-0.2.4.md) and [compatibility guide](ZG-COMPATIBILITY.md).
 
 The color wheel remains available. Open **Fine-tune color** beneath a channel to
@@ -79,4 +79,6 @@ preview rather than reconstructing importer-generated names.
   override precedence/reset, visibility mapping, and legacy export structure.
 - Electron UI check exercises native numeric fields, reset, and real export IPC.
 
-No packaged executable or release was rebuilt by this change.
+The 0.2.4 portable package passed first setup, updated startup, native-control
+and export checks. Its ZG output was imported with the unmodified target add-ons;
+three posed FBX exports also passed re-import checks.

@@ -1,8 +1,7 @@
 # ZG Tools Character Assembler compatibility
 
-Available in the current source for upcoming **SWTOR Model Viewer 0.2.4**.
-The latest published Windows package, **0.2.3**, does not include this feature.
-See [release notes and status](../release/RELEASE-NOTES-0.2.4.md).
+Included in **SWTOR Model Viewer 0.2.4**. Older 0.2.3 packages do not include
+this feature. See [release notes](../release/RELEASE-NOTES-0.2.4.md).
 
 ## Verified target
 
@@ -62,5 +61,6 @@ that channel's native overrides. See [native color controls](NATIVE-COLOR-CONTRO
 The reviewed fixture imported 12 models with expected materials, textures,
 palettes, vertex groups and skeleton bindings. Both importer configurations passed
 35 exact palette comparisons each; helmet/head, custom-color and native-control
-exports and the real viewer UI were checked. New portable-package validation is
-still required before publishing the 0.2.4 download.
+exports and the real viewer UI were checked. The 0.2.4 portable package also passed first setup, updated startup, color-control
+checks and export validation. Its fine-tuned head-visible export was imported
+with the unmodified ZG add-ons and bundled Blender runtime.

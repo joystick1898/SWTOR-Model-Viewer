@@ -33,20 +33,21 @@ community extraction and asset workflows.
 - Export legacy `paths.json` character packages for ZG Tools, with native colors and skeleton metadata.
 - Generate companion Unity Built-in materials and preserve their import metadata.
 
-**Upcoming 0.2.4: ZG Tools Character Assembler compatibility.** The current source
+**Version 0.2.4: ZG Tools Character Assembler compatibility.** This release
 adds legacy `paths.json` export, dye-mask color calibration and native color
 fine-tuning. Verified with **ZG Tools 2.0.14 and its paired GR2 importer 4.2.1**.
 Read the [0.2.4 notes](release/RELEASE-NOTES-0.2.4.md) and
 [ZG compatibility guide](docs/ZG-COMPATIBILITY.md).
 
-**The latest downloadable Windows package is still 0.2.3** and does not contain
-the ZG exporter or native fine-tuning. Its [release notes](release/RELEASE-NOTES-0.2.3.md)
-describe the split workspace, color menus, clear-slot buttons and animation dock.
+Download **SWTOR-Model-Viewer-0.2.4-Windows-x64.zip** from
+[Releases](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.4).
+Matching Sources and SHA-256 checksum files are provided alongside it.
+The [0.2.3 notes](release/RELEASE-NOTES-0.2.3.md) describe the earlier workspace update.
 See the [changelog](CHANGELOG.md) for release history.
 
 ## Export and update
 
-For the upcoming ZG workflow, apply appearance and equipment changes, choose
+For the ZG workflow, apply appearance and equipment changes, choose
 **Export for ZG Tools**, then select the exported `assets/paths.json` in Blender
 using **Character Assembler**. Configure ZG with matching extracted Resources.
 The package includes skeleton and known gear-name metadata; recovered dependencies
