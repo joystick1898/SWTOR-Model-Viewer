@@ -48,7 +48,7 @@ async function applyExpression(expression){
 }
 $('expressionSelect').onchange=()=>applyExpression($('expressionSelect').value||null);
 $('expressionReset').onclick=()=>applyExpression('neutral');
-function lock(value){busy=value;refreshEquipmentPanel.setBusy(value);$('expressionReset').disabled=value||!activeMeta();$('expressionSelect').disabled=value;for(const el of $('nativeDesigner').querySelectorAll('input,select,button'))el.disabled=value;$('nativeApply').disabled=value;$('npcToDesigner').disabled=value||!assetMeta;$('npcToDesigner').hidden=workspace!=='npc';equipmentEditor.setBusy(value);$('equipmentOpen').disabled=value||!activeMeta();for(const id of ['open','save','rootMotion','applyAppearance','resetAppearance'])$(id).disabled=value||workspace!=='designer';$('export').disabled=value||(workspace!=='designer'&&!assetMeta);for(const id of ['play','timeline','speed'])$(id).disabled=value||!mixer;for(const id of ['assetAnimation','assetMaterial'])$(id).disabled=value||!assetMeta;$('designerTab').disabled=value;$('browserTab').disabled=value;$('npcTab').disabled=value;}
+function lock(value){busy=value;refreshEquipmentPanel.setBusy(value);$('expressionReset').disabled=value||!activeMeta();$('expressionSelect').disabled=value;for(const el of $('nativeDesigner').querySelectorAll('input,select,button'))el.disabled=value;$('nativeApply').disabled=value;$('npcToDesigner').disabled=value||!assetMeta;$('npcToDesigner').hidden=workspace!=='npc';equipmentEditor.setBusy(value);$('equipmentOpen').disabled=value||!activeMeta();for(const id of ['open','save','rootMotion','applyAppearance','resetAppearance'])$(id).disabled=value||workspace!=='designer';$('export').disabled=value||(workspace!=='designer'&&!assetMeta);$('exportZG').disabled=value||workspace==='browser'||(workspace==='npc'&&!assetMeta);for(const id of ['play','timeline','speed'])$(id).disabled=value||!mixer;for(const id of ['assetAnimation','assetMaterial'])$(id).disabled=value||!assetMeta;$('designerTab').disabled=value;$('browserTab').disabled=value;$('npcTab').disabled=value;}
 function activeMeta(){return workspace!=='designer'?assetMeta:meta;}
 function seek(value){const duration=activeMeta()?.duration||0;elapsed=Math.max(0,Math.min(duration,value));mixer?.setTime(elapsed);$('timeline').value=String(elapsed);$('time').textContent=`${elapsed.toFixed(2)} / ${duration.toFixed(2)} s`;}
 function currentState(){return {...state,time:elapsed,exportRig:$('exportRig').checked};}
@@ -133,7 +133,7 @@ $('applyAppearance').onclick=()=>{
 };
 $('resetAppearance').onclick=()=>load({...currentState(),appearance:{...catalog.defaultState.appearance},hidden:[],time:0,clip:catalog.defaultState.clip});
 async function switchWorkspace(next){
-  if(busy||next===workspace)return;if(workspace==='designer')state.time=elapsed;playing=false;$('play').textContent='Play';workspace=next;
+  if(busy||next===workspace)return;if(workspace==='designer')state.time=elapsed;playing=false;$('play').textContent='Play';equipmentEditor.clear();workspace=next;
   document.body.dataset.workspace=next;const browser=next!=='designer';characterAnimation.hidden=browser;browserAnimation.hidden=!browser;designerAnimationSettings.hidden=browser;equipmentClose.onclick();for(const id of ['characterLibrary','designerPanel'])$(id).hidden=browser;$('assetLibrary').hidden=next!=='browser';$('npcLibrary').hidden=next!=='npc';$('assetPanel').hidden=!browser;
   $('resourceKind').textContent=next==='npc'?'NPC BROWSER':'ASSET BROWSER';$('resourceHeading').textContent=next==='npc'?'Character details':'Resource details';$('resourceHelp').textContent=next==='npc'?'Choose a character variant, select an animation, then export the current pose.':'Names here are resource filenames. Use NPC Browser to look up named characters.';$('assetMaterialControls').hidden=next==='npc';
   $('designerTab').classList.toggle('selected',!browser);$('browserTab').classList.toggle('selected',next==='browser');$('npcTab').classList.toggle('selected',next==='npc');lock(false);
@@ -246,6 +246,15 @@ $('exportRig').onchange=()=>{state.exportRig=$('exportRig').checked;};
 $('save').onclick=async()=>{try{const file=await api.save(currentState());if(file)status('Pose saved: '+file);}catch(e){status(e.message);}};
 $('open').onclick=async()=>{try{const preset=await api.load();if(preset)await load(preset);}catch(e){status(e.message);}};
 $('export').onclick=async()=>{lock(true);playing=false;$('play').textContent='Play';try{const file=workspace!=='designer'?(workspace==='npc'?await api.exportNpc(assetMeta.id,{expression:assetMeta.expression,clip:assetMeta.clip,time:elapsed,equipment:assetMeta.equipment||[],exportRig:$('assetExportRig').checked}):await api.exportAsset(assetMeta.id,{material:assetMeta.material,clip:assetMeta.clip,time:elapsed,equipment:assetMeta.equipment||[],exportRig:$('assetExportRig').checked})):await api.export(currentState());if(file)status('Posed FBX and materials saved: '+file);}catch(e){status(e.message);}finally{lock(false);refreshEquipment();}};
+$('exportZG').onclick=async()=>{
+  if(busy||workspace==='browser'||workspace==='npc'&&!assetMeta)return;
+  lock(true);playing=false;$('play').textContent='Play';
+  try{
+    const request=workspace==='npc'?{kind:'npc',id:assetMeta.id,selection:{equipment:assetMeta.equipment||[]}}:{kind:'designer',state:currentState(),parts:meta.parts.filter(p=>p.source)};
+    const saved=await api.exportZG(request);
+    if(saved)status('ZG character saved: '+saved.file);
+  }catch(e){status(e.message);}finally{lock(false);refreshEquipment();}
+};
 new ResizeObserver(()=>{const r=$('viewport').getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();}).observe($('viewport'));
 let previous=performance.now();
 function animate(now){const dt=Math.min((now-previous)/1000,.1);previous=now;const duration=activeMeta()?.duration;if(playing&&duration)seek((elapsed+dt*Number($('speed').value))%duration);controls.update();updateSaberTime(scene,now/1000);renderer.render(scene,camera);requestAnimationFrame(animate);}requestAnimationFrame(animate);

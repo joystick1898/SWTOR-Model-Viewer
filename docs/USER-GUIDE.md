@@ -57,9 +57,15 @@ needing to select the item first. **Apply equipment** commits the removal;
 other slots are preserved. Use **Remove layer** in item details to remove only
 one layer from a slot containing several items.
 
-Each item's color dropdown includes **Whole item** and its individual mesh pieces.
-Choose a piece to edit its primary and secondary colors independently; resetting
-a piece removes its override so the whole-item or native color applies again.
+Each item's color dropdown lists its included mesh pieces. Choose a piece to edit
+its **Primary** and **Secondary** dye channels independently. **Reset** restores
+that channel's original appearance. Older presets with whole-item colors remain
+supported, but the editor now offers per-piece controls only.
+Open **Fine-tune color** for native Hue, Saturation, Brightness and Contrast.
+Arrows step by **0.1**; precise numbers can also be typed. Empty fields show the
+applied preview value and retain automatic coloring. Apply wheel changes first
+so the arrows can use the updated preview value. Saturation **0** is strongest
+and **1** is gray. Choosing a new wheel color clears that channel's fine-tuning.
 Component overrides remain available under **Colors / individual components**.
 Use **Apply equipment** to commit or **Revert changes** to discard pending edits.
 Apply appearance and equipment changes before saving a preset or exporting.
@@ -75,6 +81,41 @@ Saber exports include a shader in the materials folder; keep it with the bundle.
 Follow `UNITY_IMPORT.txt` beside the export. Materials target Unity's Built-in
 Render Pipeline; URP/HDRP and Tabletop Simulator compatibility are not fully
 validated. Bloom is a setting in the destination Unity scene.
+
+## Export for ZG Tools
+
+In **Character Designer** or **NPC Browser**, use **Export for ZG Tools** and
+choose a destination. A new character folder contains `assets/paths.json`,
+`assets/skeleton.json`, `assets/preset.json`, and `ZG_IMPORT.txt`.
+
+Apply pending appearance changes first: export uses the character currently
+shown. The export preserves supported native models, clothing components,
+materials, skin, eyes and palette colors. It always includes the skeleton
+description. Pose, facial expression, weapons, bone-attached accessories and
+lightsaber effects are excluded. The existing FBX export remains available for
+posed models and those extras.
+
+In a clean Blender scene, enable **ZG SWTOR Tools** and its matched **GR2
+importer**, configure ZG's Resources folder, then use **Character Assembler** to
+open `assets/paths.json`. Enable importing and binding the skeleton. Tested with
+ZG **2.0.14**, GR2 **4.2.1**, and Blender **4.3.2**. ZG may reuse existing scene
+materials, so use a clean scene when checking a newly exported appearance.
+
+Usually the export contains JSON only and uses your existing extracted Resources.
+If dependencies came from the viewer's recovery cache, the export also includes
+a complete minimal **Resources** folder for that character. Point ZG to that
+included folder, as explained in `ZG_IMPORT.txt`. Your original extraction is
+not modified. A Resources bundle contains game assets, so it is for your local
+workflow; the application itself does not ship those assets.
+
+ZG shares materials among models in the same slot. If pieces in a slot have
+different colors or material overrides that cannot be represented, export
+explains the conflict and creates no partial character folder. Use matching
+colors for those pieces. Non-palette tints, unsupported shaders, ambiguous hidden
+parts, and conflicting filenames also produce an explanatory error. This is a
+legacy character-definition export, not a pixel-identical copy of the viewer's
+baked lighting. `preset.json` supplies known equipped gear names; use **Save
+character** separately to retain all viewer edits.
 
 ## Updates and data
 

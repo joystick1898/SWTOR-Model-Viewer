@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+- Fixed a workspace-switch crash when live attachment controls still referenced
+  equipment from the previous workspace.
+- Fine-tuning arrows and keyboard arrows step by 0.1 from the applied preview's
+  palette value when a field is automatic, while retaining precise typed values.
+- Hidden equipment layers no longer cause gear-name conflicts in ZG exports.
+  Palette translation reuses decoded texture pairs and visibility checks reuse
+  the preview's source index instead of repeatedly reading hidden models.
+- Added clearer validation of malformed native palette values and saved color
+  dictionaries, plus regression coverage in local checks and Windows CI.
+- Removed Whole item / Whole layer color options; equipment colors are edited
+  per piece with primary and secondary dye channels. Legacy saved colors remain supported.
+- Armor color wheels now calibrate against the selected dye-mask region instead
+  of the whole palette image. Added optional native hue, saturation, brightness
+  and contrast fields, preserved in saved characters and ZG exports.
+- ZG visibility export now uses the applied preview's model/layer mapping for
+  hidden equipment instead of relying solely on reconstructed object names.
+- Added Export for ZG Tools to Character Designer and NPC Browser. Writes
+  legacy paths.json, skeleton.json and gear-name preset.json without changing
+  the preview or FBX pipeline.
+- Translates supported custom colors to native palettes, preserves clothing
+  replacements and selected components, and reports unsupported material conflicts.
+- Includes a minimal Resources tree when a character depends on recovered assets,
+  with import instructions and no changes to the source extraction.
+- Verified actual imports with ZG Tools 2.0.14 and its paired GR2 importer 4.2.1.
+
 ## 0.2.3 — 2026-10-08
 
 - Reorganized the workspace around appearance on the left, the viewer in the

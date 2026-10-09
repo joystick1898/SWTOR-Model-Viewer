@@ -1,5 +1,6 @@
 import {saberEditor} from './saber-editor.js';
 import {colorMenu} from './color-menu.js';
+import {paletteChannel,appliedPalette} from './palette-channel.js';
 import {equipmentSlots,equipmentSlot,reconcileEquipmentDraft} from './equipment-layout.mjs';
 export function equipmentUI(api,getContext,apply){
  const $=id=>document.getElementById(id);let layers=[],names=new Map(),kinds=new Map(),models=new Map(),offset=0,total=0,sequence=0,bones=[],parts=[],selected=-1,targetSlot=null,replaceIndex=null,baseline='[]',contextKey=null,applying=false,locked=false;
@@ -13,9 +14,15 @@ export function equipmentUI(api,getContext,apply){
  function picker(slot=null,replacing=null){if(locked)return;clearTimeout(timer);targetSlot=slot;replaceIndex=replacing;offset=0;$('equipmentSearch').value='';$('equipmentCategory').value=equipmentSlots.some(([key])=>key===slot)?slot:'';document.querySelector('.library').dataset.picker='true';$('equipmentPicker').hidden=false;$('equipmentPickerTitle').textContent=slot?'Choose '+(equipmentSlots.find(([key])=>key===slot)?.[1]||'equipment'):'Find equipment';search();$('equipmentSearch').focus();}
  function closePicker(){clearTimeout(timer);delete document.querySelector('.library').dataset.picker;$('equipmentPicker').hidden=true;targetSlot=null;replaceIndex=null;sequence++;}
  function slotOf(r,i){return equipmentSlot(r,models.get(r.item)||[],parts.filter(p=>origins.has(r)&&p.equipmentLayer===origins.get(r)));}
+ function includedModels(r){return [...new Set(models.get(r.item)||[])].filter(source=>!r.components||r.components.includes(source));}
+ function basePalette(r,source,channel){
+  const pattern=new RegExp('^'+source.split('[bt]').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[^/]+')+'$','i');
+  return appliedPalette(parts.filter(p=>p.equipmentLayer===origins.get(r)&&origins.has(r)&&pattern.test(p.source||'')),channel);
+ }
  function dyeMenu(r,title){
-  const sources=[['*','Whole item'],...[...new Set(models.get(r.item)||[])].map(source=>[source,source.split('/').at(-1).replace(/\.gr2$/i,'').replaceAll('_',' ')])];
-  const groups=sources.map(([source,label])=>({label,channels:['primary','secondary'].map(channel=>({label:channel==='primary'?'Primary':'Secondary',value:r.colors?.[source]?.[channel],read:()=>r.colors?.[source]?.[channel]||null,change:value=>{r.colors??={};r.colors[source]??={};if(value)r.colors[source][channel]=value;else{delete r.colors[source][channel];if(!Object.keys(r.colors[source]).length)delete r.colors[source];if(!Object.keys(r.colors).length)delete r.colors;}}}))}));
+  const sources=includedModels(r).map(source=>[source,source.split('/').at(-1).replace(/\.gr2$/i,'').replaceAll('_',' ')]);
+  const groups=sources.map(([source,label])=>({label,channels:['primary','secondary'].map(channel=>paletteChannel(()=>r.colors??={},source,channel,channel==='primary'?'Primary':'Secondary',undefined,'*',()=>basePalette(r,source,channel)))}));
+  if(!groups.length){const note=document.createElement('span');note.className='muted';note.textContent='Apply item to edit colors';return note;}
   const menu=colorMenu(title,groups[0].channels,()=>refreshColors(r),groups);colorView(r,()=>menu.refresh());return menu;
  }
  function renderSlots(){
@@ -70,15 +77,16 @@ export function equipmentUI(api,getContext,apply){
     for(const source of components){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=!r.components||r.components.includes(source);input.onchange=()=>{const selected=new Set(r.components||components);if(input.checked)selected.add(source);else selected.delete(source);if(!selected.size){input.checked=true;return;}r.components=[...selected];};label.append(input,document.createTextNode(source.split('/').at(-1).replace('.gr2','').replaceAll('_',' ')));group.append(label);}box.append(group);
    }
    const dyes=document.createElement('details'),dyeTitle=document.createElement('summary');dyeTitle.textContent='Colors / individual components';dyes.append(dyeTitle);
-   const sources=[['*','Whole layer'],...components.map(p=>[p,p.split('/').at(-1)])];
+   const sources=includedModels(r).map(p=>[p,p.split('/').at(-1)]);
    for(const [source,title] of sources){
     const group=document.createElement('details'),summary=document.createElement('summary');summary.textContent=title;group.append(summary);
     for(const channel of ['primary','secondary']){
+     const control=paletteChannel(()=>r.colors??={},source,channel,channel,undefined,'*');
      const label=document.createElement('label');label.textContent=channel;group.append(label);
-     const row=document.createElement('div');row.className='colorControl';const picker=document.createElement('input');picker.type='color';picker.value=r.colors?.[source]?.[channel]||'#808080';
-     const hex=document.createElement('input');hex.type='text';hex.placeholder='Original';hex.value=r.colors?.[source]?.[channel]||'';
-     colorView(r,()=>{hex.value=r.colors?.[source]?.[channel]||'';picker.value=hex.value||'#808080';hex.setCustomValidity('');});
-     const change=v=>{if(v&&!/^#[0-9a-f]{6}$/i.test(v)){hex.setCustomValidity('Use #RRGGBB');hex.reportValidity();return;}hex.setCustomValidity('');r.colors??={};r.colors[source]??={};if(v)r.colors[source][channel]=v.toUpperCase();else{delete r.colors[source][channel];if(!Object.keys(r.colors[source]).length)delete r.colors[source];if(!Object.keys(r.colors).length)delete r.colors;}refreshColors(r);};
+     const row=document.createElement('div');row.className='colorControl';const picker=document.createElement('input');picker.type='color';picker.value=control.read()||'#808080';
+     const hex=document.createElement('input');hex.type='text';hex.placeholder='Original';hex.value=control.read()||'';
+     colorView(r,()=>{hex.value=control.read()||'';picker.value=hex.value||'#808080';hex.setCustomValidity('');});
+     const change=v=>{if(v&&!/^#[0-9a-f]{6}$/i.test(v)){hex.setCustomValidity('Use #RRGGBB');hex.reportValidity();return;}hex.setCustomValidity('');control.change(v?v.toUpperCase():null);refreshColors(r);};
      picker.oninput=()=>change(picker.value);hex.onchange=()=>change(hex.value&&!hex.value.startsWith('#')?'#'+hex.value:hex.value);const reset=document.createElement('button');reset.textContent='Reset';reset.onclick=()=>change('');row.append(picker,hex,reset);group.append(row);
     }dyes.append(group);
    }box.append(dyes);

@@ -2,6 +2,8 @@
 import json,sys,copy,re
 from pathlib import Path
 from build_local_npcs import Builder,F
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'worker'))
+from palette_controls import apply_selection
 
 def assemble(b,r):
  d=r['designer'];body=d['body'];definition=copy.deepcopy(r.get('definition') or {})
@@ -30,10 +32,9 @@ def assemble(b,r):
    piece=copy.deepcopy(slot);piece['models']=[model]
    color=d['colors'].get(model,d['colors'].get(slot['slotName'],{}))
    for channel,index in [('primary',1),('secondary',2)]:
-    if color.get(channel):
-     piece['materialInfo']['otherValues']['palette'+str(index)+'Color']=color[channel]
-     for override in piece['materialInfo'].get('materialOverrides',{}).values():
-      if override['otherValues']['derived'] not in ['Eye','SkinB']:override['otherValues']['palette'+str(index)+'Color']=color[channel]
+    apply_selection(piece['materialInfo']['otherValues'],color,channel,index)
+    for override in piece['materialInfo'].get('materialOverrides',{}).values():
+     if override['otherValues']['derived'] not in ['Eye','SkinB']:apply_selection(override['otherValues'],color,channel,index)
    slots.append(piece)
  result['slots']=slots
  # Shared skin and eye swatches affect every dependent material, including exposed skin on clothing.
@@ -41,9 +42,9 @@ def assemble(b,r):
   if not isinstance(info,dict):return
   family=info.get('otherValues',{}).get('derived')
   color=d['colors'].get('eyes' if family=='Eye' else 'skin' if family=='SkinB' else 'hair' if family=='HairC' else '',{})
-  if color.get('primary') and not info['otherValues'].get('palette1Color'):info['otherValues']['palette1Color']=color['primary']
-  if info.get('skinPaletteIndex') and not info.get('otherValues',{}).get('palette'+str(info['skinPaletteIndex'])+'Color') and d['colors'].get('skin',{}).get('primary'):
-   info['otherValues']['palette'+str(info['skinPaletteIndex'])+'Color']=d['colors']['skin']['primary']
+  if color:apply_selection(info['otherValues'],color,'primary',1,fallback=True)
+  if info.get('skinPaletteIndex'):
+   apply_selection(info['otherValues'],d['colors'].get('skin',{}),'primary',info['skinPaletteIndex'],fallback=True)
   for value in info.values():
    if isinstance(value,dict):visit(value)
    elif isinstance(value,list):

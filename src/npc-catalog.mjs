@@ -51,7 +51,7 @@ function safePath(relative){
   if(!/^(art|anim)\//.test(p)||p.split('/').includes('..')||p.includes(':'))throw Error('NPC asset outside resources');
   return p;
 }
-export async function prepareNpc(root,record){
+export async function prepareNpc(root,record,{animations=true}={}){
   const slots=structuredClone(record.slots),missing=[];
   async function visit(obj){
     if(!obj||typeof obj!=='object')return;
@@ -78,6 +78,6 @@ export async function prepareNpc(root,record){
     const dyc=await fs.readFile(path.join(root,`art/dynamic/spec/${record.body}.dyc`),'utf8');
     profile={id:record.body,rig:record.body,skeleton:safePath('art/dynamic/spec/'+dyc.match(/^\s*Skeleton=(\S+)/m)?.[1]),animationDirectory:safePath(dat.match(/^\s*AnimNetworkFolder=(\S+)/m)?.[1]||'').replace(/\/$/,'')};
   }
-  const library=await animationLibrary(root,profile.animationDirectory);
+  const library=animations?await animationLibrary(root,profile.animationDirectory):{clips:[],unsupported:[],signature:null};
   return {version:1,id:record.id,appearance:{body:record.body},profile,slots,clips:library.clips,unsupportedClips:library.unsupported,mappingSignature:library.signature};
 }

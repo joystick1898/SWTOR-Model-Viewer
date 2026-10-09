@@ -1,12 +1,12 @@
 // Native appearance choices are resolved by the same local data used for NPCs.
 import {colorMenu} from './color-menu.js';
+import {paletteChannel,appliedPalette} from './palette-channel.js';
 export function nativeDesigner(api,{getState,apply,status}){
  const $=id=>document.getElementById(id);let draft,options,sequence=0,lastParts=[],baseline='';
  const bodies={male:['bma','bmn','bms','bmf'],female:['bfa','bfn','bfs','bfb']};
  const colorKeys={appSlotSkinColor:['skin','Skin color'],appSlotEyeColor:['eyes','Eye color'],appSlotHairColor:['hair','Hair color']};
  function pending(){const changed=JSON.stringify(draft)!==baseline;$('nativeApply').textContent=changed?'Apply appearance · changes pending':'Apply appearance';$('nativeReset').disabled=!changed;}
- function setColor(colors,key,channel,value){colors[key]??={};if(value)colors[key][channel]=value;else{delete colors[key][channel];if(!Object.keys(colors[key]).length)delete colors[key];}}
- function globalMenu(key,title){const colors=draft.colors;return colorMenu('Custom '+title.toLowerCase(),[{label:'Color',value:colors[key]?.primary,change:value=>setColor(colors,key,'primary',value)}],pending);}
+ function globalMenu(key,title){return colorMenu('Custom '+title.toLowerCase(),[paletteChannel(()=>draft.colors,key,'primary','Color',undefined,null,()=>appliedPalette(lastParts,'primary',{skin:'SkinB',eyes:'Eye',hair:'HairC'}[key]))],pending);}
  async function refresh(){
   const seq=++sequence,requested=structuredClone(draft);$('nativeApply').disabled=true;
   try{
@@ -57,7 +57,7 @@ export function nativeDesigner(api,{getState,apply,status}){
   for(const [slot,[key,title]] of Object.entries(colorKeys))if(!options.groups[slot]?.length){const row=document.createElement('div');row.className='pieceColorRow';const label=document.createElement('span');label.textContent=title;row.append(label,globalMenu(key,title));$('nativeColors').append(row);}
   const seen=new Set();for(const part of parts||[]){if(part.equipmentLayer!==undefined||!part.source||seen.has(part.source))continue;seen.add(part.source);
    const row=document.createElement('div');row.className='pieceColorRow';const label=document.createElement('span');const name=part.source.split('/').at(-1).replace('.gr2','');const component=name.match(/_(?:a\d+|archetype)_(.+)$/)?.[1];label.textContent=part.slot+(component?' · '+component.replaceAll('_',' '):'');label.title=part.source;
-   row.append(label,colorMenu(label.textContent+' colors',[['primary','Primary'],['secondary','Secondary']].map(([channel,title])=>({label:title,value:currentColors[part.source]?.[channel],change:value=>setColor(currentColors,part.source,channel,value)})),pending));$('nativeColors').append(row);
+   row.append(label,colorMenu(label.textContent+' colors',[['primary','Primary'],['secondary','Secondary']].map(([channel,title])=>paletteChannel(()=>currentColors,part.source,channel,title,undefined,null,()=>appliedPalette(part,channel))),pending));$('nativeColors').append(row);
   }
  }
  $('nativeDesigner').addEventListener('input',pending);$('nativeDesigner').addEventListener('change',pending);

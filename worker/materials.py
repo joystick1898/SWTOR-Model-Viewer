@@ -7,6 +7,7 @@ import bpy,json,hashlib,struct,zlib
 import numpy as np
 from pathlib import Path
 from palette import palette_offsets
+from palette_controls import override_palette
 from resource_source import source as resource_source
 
 def save_texture(image,file,linear=False):
@@ -57,14 +58,17 @@ class MaterialPipeline:
             p=self.source(relative);sources.append((str(p),p.stat().st_mtime_ns,p.stat().st_size))
         bake_info={k:v for k,v in info.items() if not k.startswith('portableAlpha')}
         dimensions=self.dimensions(info)
-        key=hashlib.sha256(json.dumps([13,dimensions,bake_info,sources,info.get('portableAlphaMode')=='additive'],sort_keys=True).encode()).hexdigest()
+        key=hashlib.sha256(json.dumps([15,dimensions,bake_info,sources,info.get('portableAlphaMode')=='additive'],sort_keys=True).encode()).hexdigest()
         material_key=key+repr((info.get('portableAlphaMode'),info.get('portableAlphaCutoff')))
         if material_key in self.materials:return self.materials[material_key]
         folder=self.cache/key;folder.mkdir(exist_ok=True)
         family=info['otherValues']['derived']
         files={channel:folder/(key[:12]+'-'+channel+'.png') for channel in dimensions}
-        if not all(p.exists() for p in files.values()):self.bake(info,files,dimensions)
-        mat=bpy.data.materials.new(name+' â€” '+family);mat.use_nodes=True
+        palette_file=files['base'].with_suffix('.palette.json')
+        uses_palette=family in ('Garment','GarmentScrolling','SkinB','Eye','HairC')
+        if not all(p.exists() for p in files.values()) or uses_palette and not palette_file.exists():self.bake(info,files,dimensions)
+        mat=bpy.data.materials.new(name+' — '+family);mat.use_nodes=True
+        if uses_palette:mat['nativePaletteInfo']=palette_file.read_text(encoding='utf-8')
         nodes=mat.node_tree.nodes;links=mat.node_tree.links;bsdf=nodes.get('Principled BSDF')
         base=nodes.new('ShaderNodeTexImage');base.image=bpy.data.images.load(str(files['base']),check_existing=True)
         links.new(base.outputs['Color'],bsdf.inputs['Base Color'])
@@ -111,13 +115,29 @@ class MaterialPipeline:
                 if f'palette{palette}{key}' in values:setattr(shader,f'palette{palette}_{prop}',[*values[f'palette{palette}{key}'],1])
         if 'fleshBrightness' in values:shader.flesh_brightness=values['fleshBrightness']
         if 'flush' in values:shader.flush_tone=[*values['flush'],1]
+        palette_pixels=None;mask_pixels=None
         for index in [1,2]:
             if values.get(f'palette{index}Color') and info['ddsPaths'].get('paletteMap'):
                 palette=self.image(info['ddsPaths']['paletteMap'])
-                pixels=np.asarray(palette.pixels[:],dtype=np.float32)
-                calibrated=palette_offsets(values[f'palette{index}Color'],pixels,float(values.get(f'palette{index}',[0,0,0,1])[3]))
+                if palette_pixels is None:
+                    palette_pixels=np.empty(len(palette.pixels),dtype=np.float32);palette.pixels.foreach_get(palette_pixels)
+                if mask_pixels is None and values.get('derived') in ('Garment','GarmentScrolling') and info['ddsPaths'].get('paletteMaskMap'):
+                    image=self.image(info['ddsPaths']['paletteMaskMap'])
+                    if tuple(image.size)==tuple(palette.size):
+                        mask_pixels=np.empty(len(image.pixels),dtype=np.float32);image.pixels.foreach_get(mask_pixels)
+                calibrated=palette_offsets(values[f'palette{index}Color'],palette_pixels,float(values.get(f'palette{index}',[0,0,0,1])[3]),mask_pixels,index)
                 for prop,value in zip(['hue','saturation','brightness','contrast'],calibrated):setattr(shader,f'palette{index}_'+prop,value)
+            controls=values.get(f'palette{index}Controls')
+            if controls:
+                family=values.get('derived')
+                if family not in ('Garment','GarmentScrolling','SkinB','Eye','HairC') or index==2 and family not in ('Garment','GarmentScrolling'):
+                    raise ValueError(f'{family} does not support native palette {index} controls')
+                props=['hue','saturation','brightness','contrast']
+                vector=[getattr(shader,f'palette{index}_'+prop) for prop in props]
+                for prop,value in zip(props,override_palette(vector,controls)):setattr(shader,f'palette{index}_'+prop,value)
         group=shader.node_tree
+        channels=(1,2) if values.get('derived') in ('Garment','GarmentScrolling') else (1,) if values.get('derived') in ('SkinB','Eye','HairC') else ()
+        palette_info={'family':values.get('derived'),'palettes':{str(index):[getattr(shader,f'palette{index}_'+prop) for prop in ['hue','saturation','brightness','contrast']] for index in channels}}
         # These helpers inject view/normal-dependent lighting into the *color*
         # graph before its diffuse BSDF. An EMIT bake alone does not remove it.
         # Disconnect only their contribution in this temporary shader instance;
@@ -174,5 +194,6 @@ class MaterialPipeline:
         baked['base'].pixels.foreach_get(pixels);baked['alpha'].pixels.foreach_get(alpha);pixels[3::4]=1-np.clip(alpha[0::4],0,1);baked['base'].pixels.foreach_set(pixels);baked['base'].update()
         for channel,p in files.items():
             save_texture(baked[channel],p,linear=channel=='normal')
+        if channels:files['base'].with_suffix('.palette.json').write_text(json.dumps(palette_info),encoding='utf-8')
         bpy.data.objects.remove(plane,do_unlink=True);bpy.data.materials.remove(mat)
         for image in baked.values():bpy.data.images.remove(image)

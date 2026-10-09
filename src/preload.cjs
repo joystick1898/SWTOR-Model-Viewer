@@ -1,5 +1,6 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('viewer',{
+  exportZG:value=>ipcRenderer.invoke('export-zg',value),
   storageInfo:()=>ipcRenderer.invoke('storage-info'),storageClear:()=>ipcRenderer.invoke('storage-clear'),
   setupCancel:()=>ipcRenderer.invoke('setup-cancel'),
   setupBack:()=>ipcRenderer.invoke('setup-back'),

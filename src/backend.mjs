@@ -15,6 +15,7 @@ import {assetMetadata,assetMotion} from './asset-metadata.mjs';
 import {searchNpcs,npcRecord,prepareNpc} from './npc-catalog.mjs';
 import {decodeAssetMotion} from './animation-library.mjs';
 import {equipmentSearch,validateEquipment,resolveEquipment} from './equipment.mjs';
+import {prepareZGExport} from './zg-export.mjs';
 export const equipment=equipmentSearch;
 export const npcs=searchNpcs;
 export const assets=query=>searchAssets(config.resources,query);
@@ -33,6 +34,40 @@ export function validateState(value) {
   return {...(value.version===2?{version:2,character:'native-designer',designer:validateDesigner(value.designer)}:{version:1,character:'atton-reference'}),expression:validateExpression(value.expression),clip:value.clip,time:value.time,hidden:[...new Set(value.hidden)],rootMotion:value.rootMotion,weapon,exportRig,equipment:validateEquipment(value.equipment),appearance:appearance(value.version===2?{body:value.designer?.body||'bmn'}:value.appearance)};
 }
 export const defaultState={expression:null,version:1,character:'atton-reference',clip:'cb_pistol_normal_to_combat.jba',time:0,hidden:[],rootMotion:false,weapon:'none',exportRig:true,equipment:[],appearance:appearanceDefaults};
+export async function exportZGCharacter(value,notify=()=>{}){
+  if(busy)throw Error('A conversion is already running');
+  busy=true;
+  try{
+    notify('Resolving the character for ZG Tools…');
+    let state,assembly,name='Character',warnings=[];
+    if(value?.kind==='npc'){
+      const record=await npcRecord(value.id);name=record.name;warnings=record.warnings||[];
+      assembly=await prepareNpc(config.resources,record,{animations:false});
+      state={equipment:validateEquipment(value.selection?.equipment),hidden:[],weapon:'none'};
+    }else if(value?.kind==='designer'){
+      state=validateState(value.state);
+      // The preview records the actual Blender object name alongside its asset.
+      // Do not infer that name from the GR2 again when exporting visibility.
+      if(value.parts!==undefined){
+        if(!Array.isArray(value.parts)||value.parts.length>512)throw Error('Invalid preview parts');
+        state.previewParts=value.parts.map(p=>{
+          if(!p||typeof p!=='object'||typeof p.name!=='string'||!p.name||p.name.length>200||typeof p.source!=='string'||p.source.length>300||!/^\/?art\/(?!.*(?:^|\/)\.{1,2}(?:\/|$))[^:\x00\r\n\\]+\.gr2$/i.test(p.source)||p.equipmentLayer!==undefined&&(!Number.isInteger(p.equipmentLayer)||p.equipmentLayer<0||p.equipmentLayer>=state.equipment.length))throw Error('Invalid preview part');
+          return {name:p.name,source:p.source,...(p.equipmentLayer!==undefined?{equipmentLayer:p.equipmentLayer}:{})};
+        });
+      }
+      if(state.version===2)assembly=await assembleDesigner(config.resources,config.fixture,state.designer,{animations:false});
+      else{
+        if(!config.fixture)throw Error('This legacy character needs the original Atton reference files.');
+        assembly=await assembleCharacter(config.resources,config.fixture,state.appearance);name='Character';
+      }
+      warnings=assembly.designerWarnings||[];
+    }else throw Error('ZG export is available for Character Designer and NPC Browser.');
+    assembly.equipment=await resolveEquipment(state.equipment,assembly.profile.id);
+    const result=await prepareZGExport(assembly,state,notify);
+    result.warnings.push(...warnings);
+    return {...result,name};
+  }finally{busy=false;}
+}
 export async function catalog(body='bmn'){
   const profile=bodyProfiles.find(p=>p.id===body);if(!profile)throw Error('Unknown body profile');
   const clips=(await fs.readdir(path.join(config.resources,profile.animationDirectory))).filter(n=>n.endsWith('.jba')&&!n.startsWith('ad_')).sort();
@@ -75,7 +110,7 @@ export async function convertAsset(id,selection={},mode='preview'){
     const motion=clip?await assetMotion(config.resources,metadata,clip):null;
     if(time>(motion?.duration||0)+.001)throw Error('Pose time exceeds resource animation');
     const source=resolvedResource(path.join(config.resources,id)),stat=await fs.stat(source);
-    const folder=dataPath('asset-cache',createHash('sha256').update(JSON.stringify({revision:45,equipment,id,mtime:stat.mtimeMs,material,clip,mode,time:mode==='fbx'?time:0,exportRig,mapping:metadata.mappingSignature})).digest('hex'));
+    const folder=dataPath('asset-cache',createHash('sha256').update(JSON.stringify({revision:46,equipment,id,mtime:stat.mtimeMs,material,clip,mode,time:mode==='fbx'?time:0,exportRig,mapping:metadata.mappingSignature})).digest('hex'));
     await fs.mkdir(folder,{recursive:true});const output=path.join(folder,mode==='preview'?'preview.glb':'posed-asset.fbx');
     let report=await readCachedConversion(path.join(folder,'result.json'),output);
     if(!report){
@@ -134,7 +169,7 @@ async function convertCharacter(state,mode,notify,npcAssembly){
     if(npcAssembly){if(state.clip===null){motion.frames=1;motion.duration=0;motion.motion=motion.sourceBind.map(b=>({translations:[b.translation],rotations:[b.rotation]}));}}
     if(state.time>motion.duration+0.001)throw Error('Pose time exceeds the selected animation');
     const sourceStat=await fs.stat(path.join(config.resources,assembly.profile.animationDirectory,motionClip));
-    const key=createHash('sha256').update(JSON.stringify({revision:53,assembly,state:{...state,time:mode==='preview'?0:state.time,hidden:mode==='preview'?[]:state.hidden},mode,mtime:sourceStat.mtimeMs})).digest('hex');
+    const key=createHash('sha256').update(JSON.stringify({revision:55,assembly,state:{...state,time:mode==='preview'?0:state.time,hidden:mode==='preview'?[]:state.hidden},mode,mtime:sourceStat.mtimeMs})).digest('hex');
     const output=dataPath('app-cache',key);
     const resultPath=path.join(output,'result.json');
     const cached=await readCachedConversion(resultPath);

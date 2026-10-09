@@ -19,9 +19,31 @@ export function colorMenu(title,channels,onChange,groups=[]){
   const set=value=>{if(value&&!/^#[0-9a-f]{6}$/i.test(value)){hex.setCustomValidity('Use #RRGGBB');hex.reportValidity();return;}value=value?.toUpperCase()||null;hex.setCustomValidity('');control.channel.value=value||null;hex.value=value||'';picker.value=value||'#808080';control.channel.change(value||null);updateDot();onChange?.();};
   picker.oninput=()=>set(picker.value);hex.onchange=()=>set(hex.value&&!hex.value.startsWith('#')?'#'+hex.value:hex.value);
   const reset=document.createElement('button');reset.type='button';reset.textContent='Reset';reset.onclick=()=>set(null);row.append(picker,hex,reset);content.append(row);
+  if(channel.readPalette){
+   const fine=document.createElement('details');fine.className='paletteFine';
+   const disclosure=document.createElement('summary');disclosure.textContent='Fine-tune color';fine.append(disclosure);
+   const help=document.createElement('p');help.className='muted';help.textContent='Blank uses the wheel or original material. Arrows step by 0.1 from the applied preview value. Apply wheel changes before fine-tuning. Saturation: 0 = strongest, 1 = gray. A new wheel color resets these values.';fine.append(help);
+   const fields=[];
+   for(const [name,min,max] of [['hue',0,1],['saturation',0,1],['brightness',-1,1],['contrast',0,3]]){
+    const label=document.createElement('label');label.textContent=name[0].toUpperCase()+name.slice(1);
+    const input=document.createElement('input');input.type='number';input.min=min;input.max=max;input.step='any';input.placeholder='Automatic';input.setAttribute('aria-label',channel.label+' native '+name);
+    input.onchange=()=>{if(!input.checkValidity()){input.reportValidity();return;}const values={...control.channel.readPalette()};if(input.value==='')delete values[name];else values[name]=Number(input.value);control.channel.changePalette(values);onChange?.();};
+    const adjust=direction=>{if(!input.checkValidity()){input.reportValidity();return;}const defaults={hue:0,saturation:.5,brightness:0,contrast:1};const base=input.value!==''?Number(input.value):(control.channel.readBasePalette?.()[name]??defaults[name]);input.value=String(Math.max(min,Math.min(max,Math.round((base+direction*.1)*1e10)/1e10)));input.onchange();};
+    const adjustor=document.createElement('span');adjustor.className='paletteAdjustor';
+    const arrows=document.createElement('span');arrows.className='paletteArrows';
+    for(const [symbol,direction,action] of [['▴',1,'Increase'],['▾',-1,'Decrease']]){
+     const button=document.createElement('button');button.type='button';button.textContent=symbol;button.title=action+' by 0.1';button.setAttribute('aria-label',action+' '+channel.label+' '+name+' by 0.1');button.onclick=()=>adjust(direction);arrows.append(button);
+    }
+    input.addEventListener('keydown',event=>{if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();adjust(event.key==='ArrowUp'?1:-1);}});
+    adjustor.append(input,arrows);label.append(adjustor);fine.append(label);fields.push([name,input]);
+   }
+   const clear=document.createElement('button');clear.type='button';clear.textContent='Reset fine-tuning';clear.onclick=()=>{control.channel.changePalette({});control.refreshPalette();onChange?.();};fine.append(clear);content.append(fine);
+   control.refreshPalette=()=>{const values=control.channel.readPalette();const base=control.channel.readBasePalette?.()||{};for(const [name,input] of fields){input.value=values[name]??'';input.placeholder=base[name]===undefined?'Automatic':String(Number(base[name].toFixed(4)))+' · auto';input.setAttribute('aria-label',title+' · '+control.channel.label+' native '+name);}};control.refreshPalette();
+   picker.addEventListener('input',()=>control.refreshPalette());hex.addEventListener('change',()=>control.refreshPalette());reset.addEventListener('click',()=>control.refreshPalette());
+  }
  }
  menu.append(summary,content);updateDot();
- menu.refresh=values=>{controls.forEach(({channel,picker,hex},i)=>{channel.value=channel.read?channel.read():values?values[i]||null:channel.value;picker.value=channel.value||'#808080';hex.value=channel.value||'';hex.setCustomValidity('');});updateDot();};
+ menu.refresh=values=>{controls.forEach((control,i)=>{const {channel,picker,hex}=control;channel.value=channel.read?channel.read():values?values[i]||null:channel.value;picker.value=channel.value||'#808080';hex.value=channel.value||'';hex.setCustomValidity('');control.refreshPalette?.();});updateDot();};
  if(pieces)pieces.onchange=()=>{selectedGroup=Number(pieces.value);const group=groups[selectedGroup];controls.forEach((control,i)=>{control.channel=group.channels[i];const prefix=title+(selectedGroup?' · '+group.label:'');control.picker.setAttribute('aria-label',prefix+' · '+control.channel.label);control.hex.setAttribute('aria-label',prefix+' · '+control.channel.label+' hex');});menu.refresh();};
  menu.addEventListener('toggle',()=>{if(menu.open&&menu.isConnected)for(const other of document.querySelectorAll('.customColorMenu[open]'))if(other!==menu)other.open=false;});
  menu.addEventListener('keydown',event=>{if(event.key==='Escape'){menu.open=false;summary.focus();event.stopPropagation();}});

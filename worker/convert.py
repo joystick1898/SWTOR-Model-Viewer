@@ -7,6 +7,7 @@ from mathutils import Matrix,Vector,Quaternion
 sys.path.insert(0,str(Path(__file__).parent))
 from materials import MaterialPipeline
 from equipment import attach_equipment
+from palette_controls import material_palettes
 from secondary import anchor_hair,anchor_cloth,anchor_world
 from resource_source import source as resource_source
 request=json.loads(Path(sys.argv[sys.argv.index('--')+1]).read_text(encoding='utf-8'))
@@ -46,7 +47,7 @@ for slot in definition:
                 material=pipeline.make(slot['slotName']+('_eye' if slot['slotName']=='head' and i==1 else ''),selected)
                 if i<len(obj.data.materials):obj.data.materials[i]=material
                 else:obj.data.materials.append(material)
-            parts.append({'name':obj.name,'slot':slot['slotName'],'source':relative});meshes.append(obj)
+            parts.append({'name':obj.name,'slot':slot['slotName'],'source':relative,'nativePalettes':material_palettes(obj.data.materials)});meshes.append(obj)
 if state.get('weapon','none')!='none':
     before=set(bpy.data.objects)
     bpy.ops.import_mesh.gr2(filepath=source('art/dynamic/weapon/blaster/blaster_high02_a03.gr2'))

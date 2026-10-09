@@ -67,7 +67,7 @@ app.whenReady().then(async()=>{
     }
     return net.fetch(pathToFileURL(resolved).href);
   });
-  const conversions=new Set(['preview','npc-preview','asset-preview','export-fbx','export-npc-fbx','export-asset-fbx']);
+  const conversions=new Set(['preview','npc-preview','asset-preview','export-fbx','export-npc-fbx','export-asset-fbx','export-zg']);
   function handle(name,callback){ipcMain.handle(name,(event,...args)=>{
     if(event.sender!==window.webContents||!event.senderFrame.url.startsWith('viewer://app/'))throw Error('Invalid sender');
     if(name==='setup-cancel')return callback(...args);
@@ -142,6 +142,15 @@ app.whenReady().then(async()=>{
     const result=await backend.convert(state,'fbx',message=>window.webContents.send('progress',message));
     const {writeExportBundle}=await import('./export-bundle.mjs');
     await writeExportBundle(result,state,choice.filePath);return choice.filePath;
+  });
+  handle('export-zg',async value=>{
+    const choice=await dialog.showOpenDialog(window,{title:'Choose where to create the ZG character folder',properties:['openDirectory','createDirectory']});
+    if(choice.canceled)return null;
+    const result=await backend.exportZGCharacter(value,message=>window.webContents.send('progress',message));
+    const {writeZGPackage,zgFolderName}=await import('./zg-export.mjs');
+    const saved=await writeZGPackage(result,path.join(choice.filePaths[0],zgFolderName(result.name)));
+    await dialog.showMessageBox(window,{type:'info',message:'ZG character export saved',detail:[saved.file,'',saved.bundledResources?'Set ZG Resources to the Resources folder inside this export.':'Use your extracted Resources folder in ZG Tools.','Open assets/paths.json with Character Assembler. Pose, weapons and saber effects are excluded.',...saved.warnings].join('\n'),buttons:['OK']});
+    return saved;
   });
   handle('export-asset-fbx',async (id,selection)=>{
     const name=typeof id==='string'?path.basename(id,'.gr2'):'asset';

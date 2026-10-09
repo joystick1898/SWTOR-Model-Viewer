@@ -23,8 +23,21 @@ export function validateDesigner(d={}){
  if(!bodyProfiles.some(p=>p.id===body)||typeof species!=='string'||!/^[a-z_]+$/.test(species))throw Error('Invalid designer body or species');
  if(sourceNpc!==null&&(typeof sourceNpc!=='string'||!/^\d{16,20}-\d+$/.test(sourceNpc)))throw Error('Invalid source NPC');
  const choices={};for(const [slot,value] of Object.entries(d.choices||{})){if(!physical.includes(slot)||value!==null&&(typeof value!=='string'||!/^[a-f0-9]{24}$/.test(value)))throw Error('Invalid appearance choice');choices[slot]=value;}
+ if(d.colors!=null&&(typeof d.colors!=='object'||Array.isArray(d.colors)))throw Error('Invalid piece colors');
  const colors={};if(Object.keys(d.colors||{}).length>256)throw Error('Too many piece colors');
- for(const [key,value] of Object.entries(d.colors||{})){if(key.length>300||!value||typeof value!=='object')throw Error('Invalid piece color');colors[key]={};for(const channel of ['primary','secondary']){const hex=value[channel];if(hex!=null){if(typeof hex!=='string'||!/^#[a-f0-9]{6}$/i.test(hex))throw Error('Use a six-digit hex color');colors[key][channel]=hex.toUpperCase();}}}
+ for(const [key,value] of Object.entries(d.colors||{})){
+  if(key.length>300||['__proto__','constructor','prototype'].includes(key)||!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid piece color');colors[key]={};
+  for(const channel of ['primary','secondary']){
+   const hex=value[channel];if(hex!=null){if(typeof hex!=='string'||!/^#[a-f0-9]{6}$/i.test(hex))throw Error('Use a six-digit hex color');colors[key][channel]=hex.toUpperCase();}
+   const controls=value[channel+'Palette'];
+   if(controls!==undefined){
+    if(!controls||typeof controls!=='object'||Array.isArray(controls))throw Error('Invalid native palette controls');
+    const bounds={hue:[0,1],saturation:[0,1],brightness:[-1,1],contrast:[0,3]},clean={};
+    for(const [name,n] of Object.entries(controls)){const range=Object.hasOwn(bounds,name)?bounds[name]:null;if(!range||typeof n!=='number'||!Number.isFinite(n)||n<range[0]||n>range[1])throw Error('Invalid native palette '+name);clean[name]=n;}
+    if(Object.keys(clean).length)colors[key][channel+'Palette']=clean;
+   }
+  }
+ }
  return {species,body,sourceNpc,choices,colors,useNpcAppearance:d.useNpcAppearance!==false};
 }
 let labelCache;
@@ -68,17 +81,17 @@ export async function importNpcDesigner(npcId){
  let species=['nautolan','togruta','cathar','twilek','rattataki','miralukan','mirialan','chiss','zabrak','sith','cyborg'].find(s=>hints.includes(s))||'human';
  const options=await designerOptions({sourceNpc:npcId,species,body:npc.body});return {...options,name:npc.name};
 }
-export async function assembleDesigner(resources,fixture,value){
+export async function assembleDesigner(resources,fixture,value,optionsForAssembly){
  const options=await designerOptions(value),d=options.designer;
  if(options.missingChoices.length)throw Error('Saved appearance choices are absent from this resource snapshot: '+options.missingChoices.join(', ')+'. The preset has not been changed. Use its original resources or recreate those choices.');
  const npc=d.sourceNpc?await npcRecord(d.sourceNpc):null;
- const signature=createHash('sha256').update(JSON.stringify({revision:5,d,entries:options.selectedEntries,source:npc?.nativeDefinition})).digest('hex');
+ const signature=createHash('sha256').update(JSON.stringify({revision:6,d,entries:options.selectedEntries,source:npc?.nativeDefinition})).digest('hex');
  const folder=dataPath('designer/assemblies',signature);await fs.mkdir(folder,{recursive:true});
  const output=path.join(folder,'assembly.json');
  try{await fs.access(output);}catch{
   const input=path.join(folder,'request.json');await fs.writeFile(input,JSON.stringify({designer:d,entries:options.selectedEntries,definition:npc?.nativeDefinition,fixture,output}));
   await python(['tools/assemble_designer.py',input]);
  }
- const raw=JSON.parse(await fs.readFile(output,'utf8')),assembly=await prepareNpc(resources,raw);
+ const raw=JSON.parse(await fs.readFile(output,'utf8')),assembly=await prepareNpc(resources,raw,optionsForAssembly);
  return {...assembly,appearance:{body:d.body},designer:d,designerWarnings:raw.warnings||[]};
 }

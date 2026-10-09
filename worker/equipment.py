@@ -5,6 +5,7 @@ from mathutils import Matrix,Vector,Euler
 from asset_materials import resolve_material
 from sabers import blades,effect_components
 from secondary import anchor_cloth,anchor_world
+from palette_controls import apply_selection,material_palettes
 
 def attach_equipment(entries,arm,source,pipeline,resources,skins=None):
  if entries and arm is None:raise ValueError('This model has no skeleton to attach equipment to')
@@ -44,7 +45,7 @@ def attach_equipment(entries,arm,source,pipeline,resources,skins=None):
      if color and info.get('otherValues',{}).get('derived')!='SkinB':
       info=copy.deepcopy(info)
       for channel,index in [('primary',1),('secondary',2)]:
-       if color.get(channel):info['otherValues']['palette'+str(index)+'Color']=color[channel]
+       apply_selection(info['otherValues'],color,channel,index)
      mat=pipeline.make('equipment_'+str(entry['layer'])+'_'+str(i),info)
      if i<len(obj.data.materials):obj.data.materials[i]=mat
      else:obj.data.materials.append(mat)
@@ -67,6 +68,7 @@ def attach_equipment(entries,arm,source,pipeline,resources,skins=None):
      group=obj.vertex_groups.new(name=bone);group.add(list(range(len(obj.data.vertices))),1,'REPLACE')
     obj.modifiers.new('Equipment attachment','ARMATURE').object=arm
     part={'name':obj.name,'slot':'equipment','bone':bone,'equipmentLayer':entry['layer'],'equipmentItem':entry['item'],'source':obj.get('weaponComponentSource',relative)}
+    part['nativePalettes']=material_palettes(obj.data.materials)
     if obj.get('saberFrame') is not None and not native:
      def matrix_rows(values):return Matrix([values[i:i+4] for i in range(0,16,4)])
      part['saberEdit']={'element':obj['saberElement'],'frame':[v for row in grip@matrix_rows(obj['saberFrame']) for v in row],'matrix':[v for row in grip@matrix_rows(obj['saberMatrix']) for v in row],'length':obj['saberLength'],'width':obj['saberWidth'],'radius':obj.get('saberRadius',0),'radiusFactor':obj.get('saberRadiusFactor',.3),'radiusScale':obj.get('saberRadiusScale',1),'tipExtension':bool(obj.get('saberTipExtension',False))}

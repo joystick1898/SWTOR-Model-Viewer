@@ -22,6 +22,8 @@ main{flex:1;min-height:180px}aside{padding:14px 16px}.library{padding-right:16px
 .colorMenuContent{position:absolute;top:100%;left:0;right:0;background:#22262e;border:1px solid #535b68;border-radius:7px;padding:12px;z-index:6;box-shadow:0 8px 20px #0006}
 .colorMenuContent strong{font-size:12px}.colorMenuContent label{margin:9px 0 4px}.colorMenuContent .colorControl{margin:0;gap:5px}.colorMenuContent .colorControl input[type=color]{width:31px!important;height:31px;min-height:31px;padding:2px}.colorMenuContent .colorControl input[type=text]{padding:6px;min-height:31px}.colorMenuContent .colorControl button{padding:6px}
 .colorMenuContent select{width:100%;min-height:32px;padding:6px;margin:0}
+.colorMenuContent{max-height:65vh;overflow-y:auto}.paletteFine label{display:grid;grid-template-columns:minmax(0,1fr) minmax(75px,110px);align-items:center;gap:8px}.paletteFine input[type=number]{width:100%;min-height:31px;padding:6px}.paletteFine p{font-size:11px;line-height:1.5}.paletteFine>button{font-size:11px;padding:6px}
+.paletteAdjustor{display:flex;min-width:0}.paletteAdjustor input::-webkit-inner-spin-button,.paletteAdjustor input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.paletteArrows{display:flex;flex-direction:column;flex:none;width:23px}.paletteArrows button{padding:0;min-height:0;line-height:15px;font-size:12px;border-radius:3px}
 .pieceColorRow{margin:8px 0}.pieceColorRow>span{flex:1;min-width:0;font-size:12px}
 #equipmentDialog.equipmentPanel{width:100%;max-height:none;padding:0;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
 .equipmentHeader{gap:8px;margin-bottom:6px}.equipmentHeader h2{font-size:15px!important;margin:0}.equipmentHeader #equipmentOpen{width:auto;padding:7px 9px;font-size:12px}

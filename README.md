@@ -30,6 +30,7 @@ community extraction and asset workflows.
 - Edit lightsaber blades, crossguards, colors and supported persistent effects.
 - Scrub animations and apply supported facial expressions to create a pose.
 - Save character presets and export posed FBX with textures and optional bones.
+- Export legacy `paths.json` character packages for ZG Tools, with native colors and skeleton metadata.
 - Generate companion Unity Built-in materials and preserve their import metadata.
 
 [Version 0.2.3 notes](release/RELEASE-NOTES-0.2.3.md) describe the split workspace,

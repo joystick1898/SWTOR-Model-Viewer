@@ -18,7 +18,7 @@ export function liveEquipment({scene,camera,renderer,orbit,getContext,setEntry,p
     remember();const state=structuredClone(getContext().equipment[active.index]);if(key==='scale')state.scale=value;else state[key][axis]=value;apply(state);};row.append(input);fields.push({input,key,axis});
   }$('equipmentLiveNumbers').append(row);
  }
- function updateNumbers(){if(!active)return;const r=getContext().equipment[active.index];for(const {input,key,axis} of fields)input.value=String(Number((key==='scale'?r.scale:r[key][axis]).toFixed(5)));$('equipmentUndo').disabled=!undo.length;}
+ function updateNumbers(){if(!active)return;const r=getContext().equipment[active.index];if(!r)return;for(const {input,key,axis} of fields)input.value=String(Number((key==='scale'?r.scale:r[key][axis]).toFixed(5)));$('equipmentUndo').disabled=!undo.length;}
  function remember(){if(active){undo.push({index:active.index,value:structuredClone(getContext().equipment[active.index])});if(undo.length>100)undo.shift();}}
  function setProxy(value){equipmentMatrix(value).decompose(active.proxy.position,active.proxy.quaternion,active.proxy.scale);active.proxy.updateWorldMatrix(true,true);for(const blade of active.blades)blade.update(value.blade);blades.sync();}
  function apply(value){if(!active)return;setEntry(active.index,value);setProxy(value);updateNumbers();status('Equipment adjusted live · included in saves and FBX export');}
