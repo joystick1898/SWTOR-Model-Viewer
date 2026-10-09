@@ -1,6 +1,8 @@
 # Native color controls and visibility export
 
-Implemented October 9, 2026 in the development source.
+Implemented October 9, 2026 in the development source for upcoming 0.2.4.
+The published 0.2.3 Windows package does not include these controls. See the
+[release notes](../release/RELEASE-NOTES-0.2.4.md) and [compatibility guide](ZG-COMPATIBILITY.md).
 
 The color wheel remains available. Open **Fine-tune color** beneath a channel to
 enter native Hue, Saturation, Brightness and Contrast values. Empty fields retain
@@ -61,11 +63,9 @@ cannot conflict with the visible layer's name. Source mappings are indexed once
 per export. Palette/mask texture pairs are decoded once for both dye channels;
 the image cache retains at most two decoded textures.
 
-The supplied original DakRedux2 preset succeeded in direct tests with the head
-shown and both helmet pieces hidden, before this change. Thus the screenshot's
-exact failure is not reproduced from that file. The source-mapping change covers
-name differences; the requested failing saved state is still needed to establish
-its precise cause.
+Regression checks cover an equipped helmet with both pieces hidden and the head
+visible, as well as a visible helmet. The mapping now uses the actual applied
+preview rather than reconstructing importer-generated names.
 
 ## Checks
 

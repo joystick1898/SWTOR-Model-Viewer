@@ -19,7 +19,7 @@ contains example paths; it does not ship game data.
 The following checks use temporary test data and do not need SWTOR installed:
 
 ```powershell
-node --test tests/conversion-cache.test.mjs tests/live-saber.test.mjs tests/material-export.test.mjs tests/review.test.mjs tests/setup.test.mjs
+node --test tests/cache-policy.test.mjs tests/conversion-cache.test.mjs tests/equipment-layout.test.mjs tests/live-saber.test.mjs tests/material-export.test.mjs tests/palette-controls.test.mjs tests/review.test.mjs tests/setup.test.mjs tests/zg-export.test.mjs
 ```
 
 `npm test` runs the full suite and needs the configured game/resource fixtures.

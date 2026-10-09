@@ -5,6 +5,18 @@ viewer license, full upstream notices, and source distributions automatically.
 The viewer's original code is licensed under GPL-3.0-or-later. Third-party
 components retain their own licenses. The app is free community software.
 
+## Release status
+
+The upcoming **0.2.4** source update adds ZG Tools Character Assembler compatibility.
+[Release notes](RELEASE-NOTES-0.2.4.md) and the [compatibility guide](../docs/ZG-COMPATIBILITY.md)
+describe its tested scope. The latest published Windows/Sources archives remain
+**0.2.3**. Do not describe those archives as containing the ZG exporter.
+
+Before publishing 0.2.4, build new archives and checksums, run packaged validation,
+and upload both Windows and Sources packages with the 0.2.4 release notes.
+Keep the existing 0.2.3 release and its assets intact. The source version is 0.2.4;
+its changelog section remains Unreleased until the package is published.
+
 ## Build
 
 On Windows x64, install Node.js/npm and configure `development.local.json` using
@@ -51,6 +63,13 @@ catalogs it produced. These checks cover first setup, textured character loading
 searches, representative posed FBX exports and re-imports. Local tests are recorded
 as local tests; they do not claim testing on another physical Windows machine.
 The portable executable is unsigned and has no installer.
+
+For 0.2.4, also verify the packaged Export for ZG Tools action and fine-tuning
+controls. Import the resulting `assets/paths.json` with unmodified ZG Tools
+2.0.14 and its paired GR2 4.2.1 importer in a separate Blender configuration.
+Check hidden helmet/head combinations, native palettes, recovered dependencies,
+materials and skeleton bindings. Source-level verification does not substitute
+for checking the newly built portable package.
 
 ## Source and notices
 

@@ -22,6 +22,13 @@ for storage controls, update instructions and release history.
 
 The executable is unsigned. The package is portable; no installer is required.
 Posed FBX export is supported; full animation export and cloth physics are not.
+Export for ZG Tools writes assets/paths.json plus skeleton and gear-name metadata.
+Apply appearance/equipment changes first, then select paths.json in Blender's
+ZG Tools Character Assembler. Verified target: ZG Tools 2.0.14 with its paired
+GR2 importer 4.2.1. Use matching extracted Resources; follow the export instructions.
+Weapons, bone attachments, saber effects and poses are outside this JSON handoff.
+Fine-tune dye colors with native Hue, Saturation, Brightness and Contrast; arrows
+step by 0.1. See docs/ZG-COMPATIBILITY.md for compatibility limits.
 Unity Built-in materials were tested locally; other render pipelines and TTS
 compatibility have not been fully validated.
 
