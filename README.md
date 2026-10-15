@@ -33,17 +33,16 @@ community extraction and asset workflows.
 - Export legacy `paths.json` character packages for ZG Tools, with native colors and skeleton metadata.
 - Generate companion Unity Built-in materials and preserve their import metadata.
 
-**Version 0.2.4: ZG Tools Character Assembler compatibility.** This release
-adds legacy `paths.json` export, dye-mask color calibration and native color
-fine-tuning. Verified with **ZG Tools 2.0.14 and its paired GR2 importer 4.2.1**.
-Read the [0.2.4 notes](release/RELEASE-NOTES-0.2.4.md) and
-[ZG compatibility guide](docs/ZG-COMPATIBILITY.md).
+**Version 0.2.5: Equipment loading fixes.** Fixes Reforged Havoc Squad preview
+failures, checks equipment against the selected body, and identifies missing
+attachments before conversion. Missing original artwork remains explicitly
+incomplete or unavailable. Read the [0.2.5 notes](release/RELEASE-NOTES-0.2.5.md).
 
-Download **SWTOR-Model-Viewer-0.2.4-Windows-x64.zip** from
-[Releases](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.4).
-Matching Sources and SHA-256 checksum files are provided alongside it.
-The [0.2.3 notes](release/RELEASE-NOTES-0.2.3.md) describe the earlier workspace update.
-See the [changelog](CHANGELOG.md) for release history.
+Download **SWTOR-Model-Viewer-0.2.5-Windows-x64.zip** from
+[Releases](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.5).
+Matching Sources and SHA-256 files are provided alongside it.
+See the [changelog](CHANGELOG.md) for history and the
+[ZG compatibility guide](docs/ZG-COMPATIBILITY.md) for the existing ZG export workflow.
 
 ## Export and update
 

@@ -1,8 +1,8 @@
 # Using SWTOR Model Viewer
 
-This guide follows version 0.2.4. **Export for ZG Tools**, native color
+This guide follows version 0.2.5. **Export for ZG Tools**, native color
 fine-tuning and per-piece-only dye menus require 0.2.4 or newer.
-See [release notes](../release/RELEASE-NOTES-0.2.4.md).
+See [release notes](../release/RELEASE-NOTES-0.2.5.md).
 
 ## First launch
 
@@ -73,6 +73,21 @@ and **1** is gray. Choosing a new wheel color clears that channel's fine-tuning.
 Component overrides remain available under **Colors / individual components**.
 Use **Apply equipment** to commit or **Revert changes** to discard pending edits.
 Apply appearance and equipment changes before saving a preset or exporting.
+
+## Equipment availability
+
+The catalog checks model files for the selected body type and attempts recovery
+from your installed game archives. **Unavailable for this body** means required
+files are absent; choose a supported body or another item. **Missing attachments**
+means the available parts can load, but the appearance may be incomplete. Details
+appear in the item's tooltip and warnings remain after **Apply equipment**.
+
+This also handles the stale Reforged Havoc Squad helmet attachment reference.
+Verified directory mistakes are corrected using the exact matching model file;
+the viewer does not substitute a different armor or body model. Presets containing
+unavailable items receive a clear error before conversion. Updating does not require
+a manual catalog rebuild. Restart after changing the installed game archives;
+newly restored extracted files are checked on subsequent requests.
 
 ## Export and Unity
 

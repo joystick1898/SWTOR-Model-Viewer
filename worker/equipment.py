@@ -68,6 +68,7 @@ def attach_equipment(entries,arm,source,pipeline,resources,skins=None):
      group=obj.vertex_groups.new(name=bone);group.add(list(range(len(obj.data.vertices))),1,'REPLACE')
     obj.modifiers.new('Equipment attachment','ARMATURE').object=arm
     part={'name':obj.name,'slot':'equipment','bone':bone,'equipmentLayer':entry['layer'],'equipmentItem':entry['item'],'source':obj.get('weaponComponentSource',relative)}
+    if relative in entry.get('modelSources',{}):part['sourceTemplate']=entry['modelSources'][relative]
     part['nativePalettes']=material_palettes(obj.data.materials)
     if obj.get('saberFrame') is not None and not native:
      def matrix_rows(values):return Matrix([values[i:i+4] for i in range(0,16,4)])

@@ -17,7 +17,7 @@ export function equipmentUI(api,getContext,apply){
  function includedModels(r){return [...new Set(models.get(r.item)||[])].filter(source=>!r.components||r.components.includes(source));}
  function basePalette(r,source,channel){
   const pattern=new RegExp('^'+source.split('[bt]').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[^/]+')+'$','i');
-  return appliedPalette(parts.filter(p=>p.equipmentLayer===origins.get(r)&&origins.has(r)&&pattern.test(p.source||'')),channel);
+  return appliedPalette(parts.filter(p=>p.equipmentLayer===origins.get(r)&&origins.has(r)&&pattern.test(p.sourceTemplate||p.source||'')),channel);
  }
  function dyeMenu(r,title){
   const sources=includedModels(r).map(source=>[source,source.split('/').at(-1).replace(/\.gr2$/i,'').replaceAll('_',' ')]);
@@ -96,14 +96,15 @@ export function equipmentUI(api,getContext,apply){
   pending();setControls();
  }
  async function search(){const seq=++sequence;$('equipmentCount').textContent='Reading local equipment catalog…';try{
-  const r=await api.equipment({query:$('equipmentSearch').value,category:$('equipmentCategory').value,offset});if(seq!==sequence)return;total=r.total;
+  const body=getContext().body?.match(/^b[mf][ansfb]/)?.[0]||'bmn';
+  const r=await api.equipment({query:$('equipmentSearch').value,category:$('equipmentCategory').value,offset,body});if(seq!==sequence)return;total=r.total;
   if($('equipmentCategory').options.length===1){
    for(const c of r.categories)$('equipmentCategory').add(new Option(equipmentSlots.find(([key])=>key===c)?.[1]||c,c));
    if(r.categories.includes(targetSlot)&&$('equipmentCategory').value!==targetSlot){$('equipmentCategory').value=targetSlot;return search();}
   }
   $('equipmentCount').textContent=r.total.toLocaleString()+' appearances · duplicate names grouped';$('equipmentPrevious').disabled=!offset;$('equipmentNext').disabled=offset+40>=total;$('equipmentResults').replaceChildren();
-  for(const item of r.items){names.set(item.id,item.name);kinds.set(item.id,item.kind);models.set(item.id,item.models||[item.model]);const button=document.createElement('button');button.className='clip';button.disabled=locked;button.textContent=item.name+' · '+item.category+' ('+item.aliasCount+' names)';button.title=item.model+'\n'+item.aliases.join('\n');button.onclick=()=>{
-   if(locked)return;
+  for(const item of r.items){names.set(item.id,item.name);kinds.set(item.id,item.kind);models.set(item.id,item.models||[item.model]);const button=document.createElement('button');button.className='clip';button.disabled=locked||item.availability?.status==='unavailable';if(locked)button.dataset.equipmentDisabled=String(item.availability?.status==='unavailable');button.textContent=item.name+' · '+item.category+' ('+item.aliasCount+' names)';button.textContent+=(item.availability?.status==='unavailable'?' - Unavailable for this body':item.availability?.status==='partial'?' - Missing attachments':'');button.title=[item.availability?.message,item.model,...item.aliases].filter(Boolean).join('\n');button.onclick=()=>{
+   if(locked||item.availability?.status==='unavailable')return;
    if(layers.length>=32&&replaceIndex===null){$('equipmentError').textContent='Use at most 32 layers.';return;}
    const preferred=item.kind==='armor'?'@skin':targetSlot==='off'?(bones.includes('LeftWeapon')?'LeftWeapon':null):item.category==='jetpack'?['vfx_jetpack_back','Spine2','Bip01_Spine2','socket_weapon_back_right'].find(b=>bones.includes(b)):bones.includes('RightWeapon')?'RightWeapon':bones[0];
    if(!preferred){$('equipmentError').textContent='This model has no attachment bones.';return;}
@@ -125,7 +126,7 @@ export function equipmentUI(api,getContext,apply){
   applying=true;pending();$('equipmentError').textContent='Applying equipment…';
   try{
    const ok=await apply(structuredClone(layers));
-   if(ok){baseline=JSON.stringify(getContext().equipment||[]);resetLayers(getContext().equipment||[]);$('equipmentError').textContent='Equipment applied';closePicker();render();}
+   if(ok){baseline=JSON.stringify(getContext().equipment||[]);resetLayers(getContext().equipment||[]);$('equipmentError').textContent=['Equipment applied',...(getContext().warnings||[])].join('\n');closePicker();render();}
    else $('equipmentError').textContent=$('status').textContent;
    return ok;
   }catch(e){$('equipmentError').textContent=e.message;return false;}

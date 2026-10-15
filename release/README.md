@@ -7,10 +7,10 @@ components retain their own licenses. The app is free community software.
 
 ## Release status
 
-Version **0.2.4** adds ZG Tools Character Assembler compatibility.
-[Release notes](RELEASE-NOTES-0.2.4.md) and the [compatibility guide](../docs/ZG-COMPATIBILITY.md)
-describe its tested scope. Windows and matching Sources archives plus SHA-256
-checksums are published on the [0.2.4 release page](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.4).
+Version **0.2.5** fixes equipment loading and adds body-aware availability checks.
+[Release notes](RELEASE-NOTES-0.2.5.md) describe verification and the limits of
+missing original artwork. Windows and matching Sources archives plus SHA-256
+checksums accompany the [0.2.5 release](https://github.com/joystick1898/SWTOR-Model-Viewer/releases/tag/v0.2.5).
 
 For future updates, build new archives and checksums, run packaged validation,
 and upload both Windows and Sources packages with version-specific release notes.

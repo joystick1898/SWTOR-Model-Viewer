@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.5 — 2026-10-15
+
+Equipment loading and body-availability fixes. See
+[0.2.5 release notes](release/RELEASE-NOTES-0.2.5.md) for checks and remaining limits.
+
+- Fixed the missing Reforged Havoc Squad helmet attachment aborting previews.
+  Recover and validate equipment models before starting conversion.
+- Mark incomplete equipment in the picker and retain warnings after Apply.
+  Disable body/item combinations missing required models; report clear errors
+  for saved selections instead of a Blender file-not-found traceback.
+- Repair verified face-model directory errors, including Vengeance's Vendetta,
+  while preserving component selection and per-piece colors.
+- Cache failed archive lookups for the session; recognize restored local files.
+- Add catalog-wide resource auditing, mesh/bone validation, textured preview,
+  export and targeted UI regression checks.
+- Support legacy 32-bit native animation networks alongside MAWB networks,
+  with synthetic regression coverage for track order and malformed mappings.
+- Improve missing-GR2-importer diagnostics in ZG export and document the
+  ZG 2.0.14 collection-link limitation on Blender 5.2.2.
+- Missing original artwork remains explicitly incomplete or unavailable.
+
 ## 0.2.4 — 2026-10-09
 
 ZG Tools Character Assembler compatibility update. Windows and matching Sources

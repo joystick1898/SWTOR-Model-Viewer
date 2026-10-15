@@ -15,7 +15,15 @@ from zg_export import build_package, game_path
 
 def main():
     request = json.loads(Path(sys.argv[sys.argv.index('--') + 1]).read_text(encoding='utf-8'))
-    sys.path.insert(0, request['addons'])
+    addons = Path(request['addons'])
+    if not (addons / 'io_scene_gr2' / '__init__.py').is_file():
+        raise ValueError(
+            f'GR2 importer missing from {addons}. '
+            'For the dev viewer, set addons in development.local.json to the folder '
+            'containing io_scene_gr2 and restart the viewer. '
+            'For a packaged viewer, re-extract the complete application package.'
+        )
+    sys.path.insert(0, str(addons))
     from io_scene_gr2.ops.import_gr2 import read
     root = Path(request['resources']).resolve()
     dependencies = {}

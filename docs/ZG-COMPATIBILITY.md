@@ -6,10 +6,38 @@ this feature. See [release notes](../release/RELEASE-NOTES-0.2.4.md).
 ## Verified target
 
 Exports were imported with unmodified [ZG SWTOR Tools 2.0.14](https://github.com/SWTOR-Slicers/ZG-SWTOR-Tools/releases/tag/2.0.14)
-and its paired **GR2 importer 4.2.1**. Compatibility with other versions is not
-established by these checks. The viewer continues to use its existing importer;
+and its paired **GR2 importer 4.2.1** on **Blender 4.3.2**. On **Blender 5.2.2 LTS**,
+the same add-ons load the tested character data but hit a collection-organization
+error before the assembly operator finishes; see the compatibility notes below.
+Compatibility with other versions is not established by these checks.
+The viewer continues to use its existing importer;
 install the ZG release and its paired importer in the Blender environment used
 for assembly. No viewer runtime replacement or add-on source modification is needed.
+
+### Blender 5.2.2 collection error
+
+ZG 2.0.14 can report `Collection 'GEAR' already in collection 'Collection'`
+(or another collection name). Its collection helpers use `scene.user_of_id()`
+to decide whether a collection needs linking. A minimal fresh-scene test returns
+1 on Blender 4.3.2 and 0 on 5.2.2 for the same already-linked collection, causing
+ZG to attempt the duplicate link.
+
+Model import and skeleton binding happen before this step. Compatibility tests
+inspect the surviving scene separately from the operator's completion status:
+an intact model does not make the failed operator a successful assembly.
+A fresh scene and disabling **Collect By In-game Names** do not eliminate this
+issue. Grouping can remain unfinished, especially with multiple gear groups.
+The diagnostic tests leave installed add-ons unchanged.
+
+The viewer's bundled **Blender 4.3.2 / GR2 4.0.7** runtime is independent of the
+Blender installation used to assemble exported characters. `paths.json` carries
+asset references and material parameters, not a Blender-version-specific scene.
+This collection issue does not require updating the viewer's runtime.
+
+The October 11 local audit covered 15 cases: eight human body types, three
+female alien characters, two dyed jacket cases, and two NPCs. All completed on
+Blender 4.3.2; on 5.2.2 the same scene-data checks passed after the collection
+error, but none completed the assembly operator successfully.
 
 ## Export and assemble
 

@@ -5,6 +5,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from 'node:child_process';
 import {saberGroups,saberElements,elementDefaults,saberEffects} from './saber-layout.mjs';
+import resources,{recoverSources} from './resource-files.mjs';
+import {availableEquipmentModels,inspectEquipmentModels,equipmentModelPath,equipmentModelAlternative,equipmentBodies} from './equipment-resources.mjs';
 const project=fileURLToPath(new URL('../',import.meta.url));
 let pending;
 async function index(){
@@ -54,17 +56,40 @@ export function validateEquipment(value=[]){
   return {...(r.blade?{blade:validateBlade(r.blade)}:{}),...(r.components?{components:[...new Set(r.components)]}:{}),...(r.replaceSlot!==undefined?{replaceSlot:r.replaceSlot}:{}),item:r.item,bone:r.bone,position:vector(r.position,[0,0,0]),rotation:vector(r.rotation,[0,0,0]),scale,...(r.colors?{colors:validateDesigner({colors:r.colors}).colors}:{})};
  });
 }
-export async function equipmentSearch({query='',category='',offset=0}={}){
+async function modelExists(model){
+ try{return (await resources.stat(path.join(config.resources,model))).isFile();}
+ catch(error){if(error.code==='ENOENT')return false;throw error;}
+}
+const recoveryAttempts=new Set();
+async function recoverEquipmentModels(entries){
+ const models=entries.flatMap(e=>e.models);
+ const paths=[...new Set([...models,...models.map(equipmentModelAlternative).filter(Boolean)])].filter(p=>!recoveryAttempts.has(p));
+ if(!paths.length)return;
+ await recoverSources(config.resources,paths);
+ // A snapshot's archives stay fixed until setup/restart. Still stat each model
+ // on every request so manually restored files become usable immediately.
+ await Promise.all(paths.map(async p=>{if(!await modelExists(p))recoveryAttempts.add(p);}));
+}
+export async function equipmentSearch({query='',category='',offset=0,body='bmn'}={}){
+ if(!equipmentBodies.includes(body))throw Error('Unknown equipment body type');
  if(typeof query!=='string'||query.length>160||typeof category!=='string'||!Number.isInteger(offset)||offset<0)throw Error('Invalid equipment search');
  const data=await index(),words=query.toLowerCase().replaceAll('_',' ').split(/\s+/).filter(w=>w&&!['armor','set'].includes(w));
  const matches=data.items.filter(r=>(!category||r.category===category)&&words.every(w=>(r.aliases.join(' ')+' '+r.references.join(' ')).toLowerCase().replaceAll('_',' ').includes(w)));
- return {items:matches.slice(offset,offset+40).map(({id,name,category,kind,aliases,models})=>({id,name:aliases.find(a=>!a.startsWith('ipp.')&&words.every(w=>a.toLowerCase().includes(w)))||name,category,kind,aliases:aliases.slice(0,12),aliasCount:aliases.length,model:models[0],models})),total:matches.length,summary:data.summary,categories:[...new Set(data.items.map(r=>r.category))].sort()};
+ const page=matches.slice(offset,offset+40),entries=page.map(r=>({...r,body,modelTemplates:r.models,models:r.models.map(p=>equipmentModelPath(p,body))}));
+ await recoverEquipmentModels(entries);
+ const availability=await Promise.all(entries.map(e=>inspectEquipmentModels(e,modelExists)));
+ return {items:page.map(({id,name,category,kind,aliases,models},i)=>({id,name:aliases.find(a=>!a.startsWith('ipp.')&&words.every(w=>a.toLowerCase().includes(w)))||name,category,kind,aliases:aliases.slice(0,12),aliasCount:aliases.length,model:models[0],models,availability:availability[i]})),total:matches.length,summary:data.summary,categories:[...new Set(data.items.map(r=>r.category))].sort()};
 }
 export async function resolveEquipment(value,body='bmn'){
  const selections=validateEquipment(value);if(!selections.length)return [];
  const data=await index();
- return selections.map((s,i)=>{const r=data.items.find(r=>r.id===s.item);if(!r)throw Error('Equipment appearance no longer exists in catalog');
+ const entries=selections.map((s,i)=>{const r=data.items.find(r=>r.id===s.item);if(!r)throw Error('Equipment appearance no longer exists in catalog');
  const substitute=p=>p.replaceAll('[bt]',body).replaceAll('[gen]',body.startsWith('bf')?'f':'m');
  if(s.components?.some(p=>!r.models.includes(p)))throw Error('Equipment component is not part of this appearance');
  return {...r,...s,...(s.colors?{colors:Object.fromEntries(Object.entries(s.colors).map(([k,v])=>[substitute(k),v]))}:{}),modelTemplates:r.models,materialInfo:r.materialByGender?.[body.startsWith('bf')?'f':'m']||r.materialInfo,layer:i,models:(s.components||r.models).map(substitute)};});
+ await recoverEquipmentModels(entries);
+ return Promise.all(entries.map(async entry=>{
+  const result=await availableEquipmentModels({...entry,body},modelExists);
+  delete result.body;return result;
+ }));
 }
