@@ -8,6 +8,8 @@ lightsabers, and exporting textured FBX files for modding.
 [User guide](docs/USER-GUIDE.md) ·
 [Report a bug](https://github.com/joystick1898/SWTOR-Model-Viewer/issues/new/choose)
 
+<img width="1423" height="933" alt="image" src="https://github.com/user-attachments/assets/c839f572-369b-4c67-9e8d-1d624289e0e3" />
+
 ## Get started
 
 1. Download the **Windows-x64.zip** from Releases and extract the entire folder.
